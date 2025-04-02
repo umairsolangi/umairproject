@@ -32,8 +32,9 @@ const CustomerDrawerNavigation = ({navigation, route}) => {
   };
   return (
     loading ? (
-          <ActivityIndicator size="large" color="black" style={{marginTop: 20}} />
-          
+      <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+          <ActivityIndicator size="large" color="black" /* style={{marginTop: 20,alignSelf:'center'}}  *//>
+        </View>   
         ) : (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} route={route} />}

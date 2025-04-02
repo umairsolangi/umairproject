@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, Image,Alert} from 'react-native';
 import {Button, TextInput} from 'react-native-paper';
 
 const Login = ({navigation}) => {
-  const [email, setEmail] = useState('hassan@gmail.com');
+  const [email, setEmail] = useState('rehman@gmail.com');
   const [password, setPassword] = useState('0000');
 
 

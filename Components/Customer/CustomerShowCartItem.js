@@ -154,10 +154,10 @@ const CustomerShowCartItem = ({navigation, route}) => {
     }
   };
   const handleConfirmCheckout = val => {
-    if (!selectedDeliveryAddress || !selectedBillingAddress) {
+    /* if (!selectedDeliveryAddress || !selectedBillingAddress) {
       alert('Please select both addresses!');
       return;
-    }
+    } */
     const orderInfo = {
       customer_id: customerFullData.customer_id,
       delivery_address: selectedDeliveryAddress,
@@ -260,7 +260,7 @@ const CustomerShowCartItem = ({navigation, route}) => {
             />
 
             {/* Billing Address Dropdown */}
-            <Text style={styles.label}>Billing Address</Text>
+         {/*    <Text style={styles.label}>Billing Address</Text>
             <SelectList
               setSelected={val => {
                 const selectedAddress = addresses.find(
@@ -273,7 +273,7 @@ const CustomerShowCartItem = ({navigation, route}) => {
               boxStyles={styles.dropdown}
               dropdownStyles={styles.dropdownList}
               defaultOption={addresses[0]}
-            />
+            /> */}
             <Button
               mode="text"
               textColor="grey"

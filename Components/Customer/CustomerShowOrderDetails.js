@@ -77,10 +77,10 @@ const CustomerShowOrderDetails = ({ navigation, route }) => {
               <Text style={styles.totalText}>Delivery Address:</Text>
               <Text style={styles.itemName}>{orderInfo.delivery_address.value}</Text>
             </View>
-            <View  style={[styles.orderItem,{flexDirection:'column'}]}>
+           {/*  <View  style={[styles.orderItem,{flexDirection:'column'}]}>
               <Text style={styles.totalText}>Billing Address:</Text>
               <Text style={styles.itemName}>{orderInfo.Billing_address.value}</Text>
-            </View>    
+            </View>   */}  
         </Card.Content>
         <Card.Content>
          

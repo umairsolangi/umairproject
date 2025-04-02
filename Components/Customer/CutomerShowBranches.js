@@ -97,8 +97,8 @@ const CutomerShowBranches = ({navigation, route}) => {
     <Pressable
       onPress={() => navigation.navigate('Branch Menu', {item, addtocarditem})}>
       <View style={styles.card}>
-        <Image source={{uri: item.branch_picture}} style={styles.image} />
-        <TouchableOpacity style={styles.heartIcon}>
+      <Image source={{ uri: item.branch_picture }} style={styles.image} />       
+   <TouchableOpacity style={styles.heartIcon}>
           <Icon name="heart-outline" size={24} color="black" />
         </TouchableOpacity>
         <View style={styles.info}>
@@ -127,7 +127,9 @@ const CutomerShowBranches = ({navigation, route}) => {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="white" style={{marginTop: 20}} />
+        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                 <ActivityIndicator size="large" color="white" /* style={{marginTop: 20,alignSelf:'center'}}  *//>
+          </View> 
       ) : (
         <>
           <View style={{backgroundColor: '#FA4A4A', flexDirection: 'column'}}>
@@ -165,7 +167,7 @@ const CutomerShowBranches = ({navigation, route}) => {
             {/* Category Filter Buttons */}
             <View style={{height: 50, marginBottom: 20}}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{flexDirection: 'row', paddingHorizontal: 10}}>
+                <View style={styles.categoryButtons}>
                   {Allcatagories.map((category, index) => (
                     <Button
                       key={index}
@@ -195,7 +197,7 @@ const CutomerShowBranches = ({navigation, route}) => {
               ListEmptyComponent={() => (
                 <View style={{alignItems: 'center', marginTop: 20}}>
                   <Text
-                    style={{fontSize: 18, fontWeight: 'bold', color: 'white'}}>
+                    style={{fontSize: 18, fontWeight: 'bold', color: 'black'}}>
                     No items available in this category
                   </Text>
                 </View>

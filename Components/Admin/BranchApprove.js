@@ -33,7 +33,6 @@ const BranchApprove = () => {
 
           <Text style={styles.detail}>{item.branch_description}</Text>
 
-          <Text style={styles.detail}>Catagory:{item.shop_category}</Text>
           <Text style={styles.detail}>
             Status: {item.branch_approval_status}
           </Text>
@@ -54,7 +53,7 @@ const BranchApprove = () => {
     <View style={styles.container}>
       <FlatList
         data={vendors}
-        keyExtractor={item => item.vendor_id.toString()}
+         keyExtractor={item => item.branch_id.toString()} 
         renderItem={renderBranches}
       />
     </View>
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: 'white',
+    backgroundColor: '#f5f0f0',
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
@@ -81,11 +80,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 10,
     marginRight: 10,
     backgroundColor: 'grey',
+    alignSelf:'center'
   },
   info: {
     flex: 1,
@@ -102,5 +102,13 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 5,
+    backgroundColor: '#F8544B',
+          borderRadius: 10,
+          width: 150,
+          height: 40,
+          justifyContent:'center',
+          alignItems:'center',
+          fontSize: 20,
+          fontWeight: 'bold',
   },
 });

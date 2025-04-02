@@ -26,6 +26,7 @@ import CustomerShowCartItem from './Components/Customer/CustomerShowCartItem';
 import CustomerAddnewAddress from './Components/Customer/CustomerAddnewAddress';
 import CustomerShowOrderDetails from './Components/Customer/CustomerShowOrderDetails';
 import CustomerShowSaveCard from './Components/Customer/CustomerShowSaveCard';
+import AdminDrawerNavigation from './Components/Admin/AdminDrawerNavigation';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -67,7 +68,7 @@ const App = () => {
 
 
             {/* Admin */}
-            <Stack.Screen name="Admin Dashboard" component={AdminDashboard} />
+            <Stack.Screen name="Admin Dashboard" component={AdminDrawerNavigation} options={{headerShown: false}}/>
             <Stack.Screen name="Branch Approval" component={BranchApprove} />
             <Stack.Screen name="Vendor Approval" component={VendorApprove} />
             <Stack.Screen name='Vendor Details' component={VendorDetails}/>

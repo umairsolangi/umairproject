@@ -126,7 +126,7 @@ const ShowItems = ({navigation, route}) => {
         </TouchableOpacity> */}
       </View>
       {loading ? (
-        <ActivityIndicator size="large" color="black" style={{marginTop: 20}} />
+        <ActivityIndicator size="large" color="black" style={{marginTop: 20,alignSelf:'center'}} />
       ) : (
         <>
           <View style={{height: 50}}>

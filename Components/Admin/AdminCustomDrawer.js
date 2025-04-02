@@ -3,29 +3,9 @@ import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const CustomDrawer = (props) => {
+const AdminCustomDrawer = (props) => {
   const { navigation, route } = props;
-  const customerData = route?.params?.customerdata
-  const[ user,setuser]=useState('')
-  // Get customer data from params
-
-useEffect( ()=>{
-    fetchuser()
-},[])
-
-const fetchuser=async()=>{
-    try {
-        const response = await fetch(`${url}/customers/${customerData.id}`);
-        const data = await response.json();
-        if (data) {
-            setuser(data);}
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-}
-
-
-
+  const admindata = route?.params?.Admindata
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
@@ -42,14 +22,16 @@ const fetchuser=async()=>{
   return (
     <DrawerContentScrollView {...props}>
       <View style={{ alignItems: "flex-start", padding: 5,marginBottom:20}}>
-        {user.profile_picture ? (
-          <Image source={{ uri: user.profile_picture }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+      {admindata?.image ? (
+          <Image
+            source={{ uri: admindata.image }}
+            style={{ width: 80, height: 80, borderRadius: 40 }}
+          />
         ) : (
           <Icon name="account-circle" size={80} color="gray" />
         )}
-
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>{customerData.name}</Text>
-        <Text style={{ fontSize: 14, color: "gray" }}>{customerData.email}</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>{admindata.name}</Text>
+        <Text style={{ fontSize: 14, color: "gray" }}>{admindata.email}</Text>
 
       </View>
 
@@ -74,4 +56,4 @@ const fetchuser=async()=>{
   );
 };
 
-export default CustomDrawer;
+export default AdminCustomDrawer;

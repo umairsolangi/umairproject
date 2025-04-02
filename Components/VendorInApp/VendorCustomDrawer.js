@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const VendorCustomDrawer = (props) => {
   const { navigation, route } = props;
@@ -41,7 +42,11 @@ const fetchuser=async()=>{
   return (
     <DrawerContentScrollView {...props}>
       <View style={{ alignItems: "flex-start", padding: 5,marginBottom:20}}>
-        <Image source={{ uri: user.profile_picture }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+{user.profile_picture ? (
+          <Image source={{ uri: user.profile_picture }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+        ) : (
+          <Icon name="account-circle" size={80} color="gray" />
+        )}
         <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>{customerData.name}</Text>
         <Text style={{ fontSize: 14, color: "gray" }}>{customerData.email}</Text>
 
