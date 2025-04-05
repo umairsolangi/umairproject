@@ -11,22 +11,21 @@ import {
   Modal,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {ActivityIndicator, Button} from 'react-native-paper';
+import {ActivityIndicator, Button, IconButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useCart } from '../../Context/LmdContext';
 
 const ShowItems = ({navigation, route}) => {
   const branchdata = route.params.item;
-  const addtocarditem = route.params.addtocarditem;
+  const {addToCart} = useCart();
   const [branchItem, setBranchItem] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-
-  const [orderDetails, setOrderDetails] = useState([]);
-
   const [quantity, setQuantity] = useState(1);
   const [Allcatagories, setAllcatagories] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     getAllBranchItems();
@@ -94,13 +93,20 @@ const ShowItems = ({navigation, route}) => {
       itemPicture: selectedItem.itemPicture,
       item_name: selectedItem.item_name,
       shop_name: branchdata.shop_name,
-      item_description:selectedItem.item_description
+      item_description: selectedItem.item_description,
     };
-    addtocarditem(selecteditem);
+    addToCart(selecteditem);
     setModalVisible(false);
+    setQuantity(1);
   };
-  const showorderdetails = () => {
-    console.log('card', orderDetails);
+  const handleSearch = text => {
+    setSearchText(text);
+
+    const filtered = branchItem.filter(item =>
+      item.item_name.toLowerCase().includes(text.toLowerCase()),
+    );
+
+    setFilteredItems(filtered);
   };
   return (
     <View style={styles.container}>
@@ -112,6 +118,10 @@ const ShowItems = ({navigation, route}) => {
         />
         <View style={styles.branchDetails}>
           <Text style={styles.branchName}>{branchdata.branch_description}</Text>
+          <Text style={[styles.branchName, {fontSize: 15, fontWeight: '500'}]}>
+            {branchdata.shop_description}
+          </Text>
+
           <View style={styles.ratingContainer}>
             <Icon name="star" size={16} color="#F4A900" />
             <Text style={styles.ratingText}>
@@ -126,9 +136,45 @@ const ShowItems = ({navigation, route}) => {
         </TouchableOpacity> */}
       </View>
       {loading ? (
-        <ActivityIndicator size="large" color="black" style={{marginTop: 20,alignSelf:'center'}} />
+        <ActivityIndicator
+          size="large"
+          color="black"
+          style={{marginTop: 20, alignSelf: 'center'}}
+        />
       ) : (
         <>
+          <View style={{paddingHorizontal: 0, marginBottom: 10}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: 'black',
+                borderRadius: 10,
+                paddingHorizontal: 10,
+              }}>
+              <TextInput
+                placeholder="Search"
+                placeholderTextColor="black"
+                style={{
+                  flex: 1,
+                  color: 'black',
+                  backgroundColor: 'transparent',
+                }}
+                underlineColor="transparent"
+                activeUnderlineColor="transparent"
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+              <IconButton
+                icon="magnify"
+                size={24}
+                iconColor="white"
+                style={{backgroundColor: 'black', padding: 5, margin: 0}}
+                onPress={() => handleSearch(searchText)}
+              />
+            </View>
+          </View>
           <View style={{height: 50}}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.categoryButtons}>
@@ -156,6 +202,8 @@ const ShowItems = ({navigation, route}) => {
                 : branchItem
             }
             numColumns={2}
+            columnWrapperStyle={{justifyContent: 'space-between'}}
+
             keyExtractor={item => item.id}
             ListEmptyComponent={() => (
               <View style={{alignItems: 'center', marginTop: 20}}>
@@ -175,7 +223,7 @@ const ShowItems = ({navigation, route}) => {
                   <Text style={styles.productType}>{item.variation_name}</Text>
                   <View style={styles.productBottomRow}>
                     <Text style={styles.productPrice}>Rs. {item.price}</Text>
-                    <TouchableOpacity style={styles.addButton}>
+                    <TouchableOpacity style={styles.addButton} onPress={()=>handlePress(item)}>
                       <Icon name="plus" size={16} color="white" />
                     </TouchableOpacity>
                   </View>
@@ -211,10 +259,10 @@ const ShowItems = ({navigation, route}) => {
                   style={styles.modalImage}
                 />
                 <View>
-                  <View style={[styles.ratingContainer,{marginTop:20}]}>
+                  <View style={[styles.ratingContainer, {marginTop: 20}]}>
                     <Icon name="star" size={16} color="gold" />
                     <Icon name="star" size={16} color="gold" />
-                    <Text style={styles.rating}>
+                    <Text style={[styles.rating, {color: 'gray'}]}>
                       {' '}
                       4.9 (20)
                       {/* {item.rating} ({item.reviews_count} Ratings) */}
@@ -222,7 +270,7 @@ const ShowItems = ({navigation, route}) => {
                   </View>
                 </View>
                 <Text style={styles.modalTitle}>{selectedItem.item_name}</Text>
-                <Text style={{fontSize: 18, marginTop: 5}}>
+                <Text style={{fontSize: 17, marginTop: 5, color: 'gray'}}>
                   {selectedItem.item_description}
                 </Text>
                 <Text style={styles.modalType}>
@@ -230,7 +278,10 @@ const ShowItems = ({navigation, route}) => {
                 </Text>
                 <Text style={styles.modalPrice}>Rs/.{selectedItem.price}</Text>
                 <View style={styles.quantityContainer}>
-                  <Text style={{fontSize: 20, fontWeight: 'bold'}}>Qty:</Text>
+                  <Text
+                    style={{fontSize: 20, fontWeight: 'bold', color: 'gray'}}>
+                    Qty:
+                  </Text>
                   <TouchableOpacity
                     onPress={decreaseQuantity}
                     style={styles.quantityButton}>
@@ -267,7 +318,7 @@ const styles = StyleSheet.create({
   header: {flexDirection: 'row', alignItems: 'center', marginBottom: 10},
   branchImage: {width: 150, height: 150, borderRadius: 10},
   branchDetails: {flex: 1, marginLeft: 10},
-  branchName: {fontSize: 18, fontWeight: 'bold'},
+  branchName: {fontSize: 18, fontWeight: 'bold', color: 'black'},
   ratingContainer: {flexDirection: 'row', alignItems: 'center'},
   ratingText: {fontSize: 14, color: '#777'},
   minOrder: {fontSize: 14, color: '#777'},
@@ -297,15 +348,16 @@ const styles = StyleSheet.create({
   selectedCategory: {backgroundColor: '#F8544B', borderColor: '#F8544B'},
   categoryText: {fontSize: 16, color: '#000'},
   productCard: {
-    flex: 1,
+   
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
     margin: 5,
     elevation: 3,
+    flex:1
   },
   productImage: {width: '100%', height: 100, borderRadius: 10},
-  productName: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
+  productName: {fontSize: 16, fontWeight: 'bold', marginTop: 5, color: 'black'},
   productType: {fontSize: 14, color: '#777'},
   productBottomRow: {
     flexDirection: 'row',
@@ -313,7 +365,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 5,
   },
-  productPrice: {fontSize: 16, fontWeight: 'bold'},
+  productPrice: {fontSize: 16, fontWeight: 'bold', color: 'gray'},
   addButton: {backgroundColor: '#F8544B', padding: 8, borderRadius: 10},
 
   modalContainer: {
@@ -331,9 +383,9 @@ const styles = StyleSheet.create({
     width: '97%',
   },
   modalImage: {width: '100%', height: 200, borderRadius: 10},
-  modalTitle: {fontSize: 25, fontWeight: 'bold', marginTop: 10},
-  modalType: {color: 'black',marginTop: 5},
-  modalPrice: {fontSize: 18, fontWeight: 'bold', marginTop: 5},
+  modalTitle: {fontSize: 25, fontWeight: 'bold', marginTop: 10, color: 'black'},
+  modalType: {color: 'black', marginTop: 5},
+  modalPrice: {fontSize: 18, fontWeight: 'bold', marginTop: 5, color: 'gray'},
   addToCartButton: {
     backgroundColor: '#F8544B',
     paddingHorizontal: 50,
@@ -361,7 +413,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginHorizontal: 10,
   },
-  quantityText: {fontSize: 15},
+  quantityText: {fontSize: 15, color: 'gray'},
   categoryButtons: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -370,7 +422,6 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     marginHorizontal: 5, // Add spacing between buttons
   },
-
 });
 
 export default ShowItems;

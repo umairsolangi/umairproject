@@ -18,7 +18,11 @@ const AdminDashboard = ({navigation, route}) => {
         }}>
         <Text
           style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
-          Hey!{userdata.name}                 Welcome To Dashboard
+          Hey!{userdata.name}
+          </Text>
+          <Text
+          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
+          Welcome To Dashboard
           </Text>
 
         <Text

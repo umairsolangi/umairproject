@@ -17,11 +17,15 @@ const VendorDashboar = ({navigation, route}) => {
           borderRadius: 10,
         }}>
         <Text
-          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
-          Hey!{userdata.name}                 Welcome To Dashboard
+          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start',color:'black'}}>
+          Hey!{userdata.name}                
         </Text>
         <Text
-          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
+          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start',color:'black'}}>
+          Welcome To Dashboard
+        </Text>
+        <Text
+          style={{fontSize: 20, fontWeight: '600', alignSelf: 'flex-start',color:'black'}}>
           Vendor Type: {userdata.vendor_type}
         </Text>
       </View>

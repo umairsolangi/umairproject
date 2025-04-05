@@ -47,7 +47,7 @@ const fetchuser=async()=>{
         ) : (
           <Icon name="account-circle" size={80} color="gray" />
         )}
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>{customerData.name}</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 ,color:'black'}}>{customerData.name}</Text>
         <Text style={{ fontSize: 14, color: "gray" }}>{customerData.email}</Text>
 
       </View>

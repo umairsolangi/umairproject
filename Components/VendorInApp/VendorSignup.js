@@ -26,26 +26,32 @@ const VendorSignup = ({navigation}) => {
   const [vendor_type, setVendorType] = useState('In-App Vendor');
   const [address_type, setAddressType] = useState('Home'); // New field
   const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const addressOptions = [
     {key: 'Home', value: 'Home'},
     {key: 'Business', value: 'Business'},
   ];
-  const pickImage = () => {
-    ImagePicker.launchCamera({mediaType: 'photo'}, resp => {
-      if (resp.didCancel) {
-        console.log('User canceled image selection');
-      } else if (resp.assets && resp.assets[0]) {
-        setProfilePicture(resp.assets[0].uri);
+
+  const handleImageSelection = async type => {
+      const options = {mediaType: 'photo', quality: 1};
+      let result;
+  
+      if (type === 'camera') {
+        result = await ImagePicker.launchCamera(options);
       } else {
-        console.error('Error picking image:', resp.errorMessage);
+        result = await ImagePicker.launchImageLibrary(options);
       }
-    });
-  };
+  
+      if (!result.didCancel && result.assets?.length > 0) {
+        setProfilePicture(result.assets[0].uri);
+      }
+      setModalVisible(false);
+    };
 
   const [region, setRegion] = useState({
-    latitude: 33.6844,
-    longitude: 73.0479,
+    latitude: 33.647549,
+    longitude: 73.074145,
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
@@ -142,7 +148,7 @@ const VendorSignup = ({navigation}) => {
       <Text style={[styles.title,{color:'#F8544B',}]}>Vendor Signup</Text>
 
       {/* Upload Image Section */}
-      <Pressable onPress={pickImage} style={styles.profileImage}>
+      <Pressable  onPress={() => setModalVisible(true)} style={styles.profileImage}>
         {profile_picture ? (
           <Image source={{uri: profile_picture}} style={styles.image} />
         ) : (
@@ -265,8 +271,8 @@ const VendorSignup = ({navigation}) => {
             <Text style={styles.modalTitle}>Select Location</Text>
             <MapView
               style={styles.map}
-              region={region}
-              ini
+              initialRegion={region}
+              
               onRegionChangeComplete={handleRegionChange}>
               <Marker
                 coordinate={{
@@ -312,6 +318,48 @@ const VendorSignup = ({navigation}) => {
           </View>
         </View>
       </Modal>
+          <Modal transparent={true} visible={modalVisible} animationType="slide">
+              <Pressable
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  justifyContent: 'flex-end',
+                }}
+                onPress={() => setModalVisible(false)}>
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    padding: 20,
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius: 20,
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+                    Select Image
+                  </Text>
+      
+                  <Button
+                    mode="contained"
+                    icon="camera"
+                    onPress={() => handleImageSelection('camera')}
+                    style={{width: '70%', marginBottom: 10}}>
+                    Take Photo
+                  </Button>
+      
+                  <Button
+                    mode="contained"
+                    icon="image"
+                    onPress={() => handleImageSelection('gallery')}
+                    style={{width: '70%', marginBottom: 10}}>
+                    Choose from Gallery
+                  </Button>
+      
+                  <Button mode="text" onPress={() => setModalVisible(false)}>
+                    Cancel
+                  </Button>
+                </View>
+              </Pressable>
+            </Modal>
     </ScrollView>
   );
 };

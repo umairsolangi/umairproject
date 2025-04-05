@@ -54,8 +54,6 @@ const CustomerShowCartItem = ({navigation, route}) => {
         const formattedAddres = data.map(address => ({
           key: address.id.toString(),
           value:
-            address.address_type +
-            '-' +
             address.street +
             ',' +
             address.city +
@@ -191,7 +189,7 @@ const CustomerShowCartItem = ({navigation, route}) => {
                   style={styles.quantityButton}>
                   <Text style={styles.quantityText}>-</Text>
                 </TouchableOpacity>
-                <Text style={styles.quantityValue}>
+                <Text style={[styles.quantityValue,{color: "gray"}]}>
                   {quantities[item.item_detail_id]}
                 </Text>
                 <TouchableOpacity
@@ -256,6 +254,8 @@ const CustomerShowCartItem = ({navigation, route}) => {
               placeholder="Select Delivery Address"
               boxStyles={styles.dropdown}
               dropdownStyles={styles.dropdownList}
+              dropdownTextStyles={{ color: "black" }}
+              inputStyles={{ color: 'black' }}     
               defaultOption={addresses[0]} // Pre-select first option
             />
 
@@ -275,9 +275,9 @@ const CustomerShowCartItem = ({navigation, route}) => {
               defaultOption={addresses[0]}
             /> */}
             <Button
-              mode="text"
+              mode="outlined"
               textColor="grey"
-              labelStyle={{fontSize: 20, fontWeight: 'bold'}}
+              labelStyle={{fontSize: 17, fontWeight: '700',alignSelf:'flex-end',marginTop:10}}
               onPress={() => navigation.navigate('Add Address', {cutomerdata})}>
               Add new Address
             </Button>
@@ -388,14 +388,14 @@ const styles = StyleSheet.create({
   },
   checkoutButton: {
     flex: 1,
-    backgroundColor: '#007BFF', // Blue for checkout
+    backgroundColor: '#007BFF', 
     paddingVertical: 8,
     borderRadius: 8,
     marginRight: 10,
   },
   saveCartButton: {
     flex: 1,
-    backgroundColor: '#F8544B', // Your red theme color for Save Cart
+    backgroundColor: '#F8544B', 
     paddingVertical: 8,
     borderRadius: 8,
   },
@@ -418,16 +418,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#F8544B',
   },
   label: {
-    fontSize: 20,
+    fontSize: 14,
     alignSelf: 'flex-start',
-    marginTop: 10,
+    marginVertical: 5,
     fontWeight: 'bold',
+    color: "black"
   },
   dropdown: {
     width: '100%',
@@ -435,6 +436,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ccc',
+    
   },
   confirmButton: {
     backgroundColor: '#F8544B',

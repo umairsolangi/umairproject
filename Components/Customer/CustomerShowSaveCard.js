@@ -67,61 +67,69 @@ const CustomerShowSaveCard = ({navigation, route}) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text
-        style={{
-          alignSelf: 'center',
-          marginVertical: 20,
-          fontSize: 24,
-          fontWeight: 'bold',
-          color: '#F8544B',
-        }}>
-        Saved Cart Details
-      </Text>
-
-      {customerSavedCartDetails?.suborders.map((suborder, index) => (
-        <View key={index}>
-          {suborder.items.map((item, itemIndex) => (
-            <Card key={itemIndex} style={styles.itemCard}>
-              <Card.Content>
-                <View style={styles.itemContainer}>
-                  <Image
-                    source={{uri: item.itemPicture}}
-                    style={styles.itemImage}
-                  />
-                  <View style={styles.itemDetails}>
-                    <Text style={styles.itemName}>
-                      {item.item_name} ({item.variation_name})
-                    </Text>
-                    <Text>{item.item_description}</Text>
-                    <Text>Quantity: {item.quantity}</Text>
-                    <Text>Price: ${item.price}</Text>
+    <View style={styles.wrapper}>
+      <ScrollView style={styles.container} contentContainerStyle={{paddingBottom: 100}}>
+        {customerSavedCartDetails?.suborders.map((suborder, index) => (
+          <View key={index}>
+            {suborder.items.map((item, itemIndex) => (
+              <Card key={itemIndex} style={styles.itemCard}>
+                <Card.Content>
+                  <View style={styles.itemContainer}>
+                    <Image
+                      source={{uri: item.itemPicture}}
+                      style={styles.itemImage}
+                    />
+                    <View style={styles.itemDetails}>
+                      <Text style={styles.itemName}>
+                        {item.item_name} ({item.variation_name})
+                      </Text>
+                      <Text style={{color:'grey'}}>{item.item_description}</Text>
+                    <Text style={{color:'black'}}>Quantity: {item.quantity}</Text>
+                    <Text style={{color: '#28A745',fontWeight:'500'}}>Price: Rs/.{item.price}</Text>
+                    </View>
+                    <Ionicons
+                      name="trash-outline"
+                      size={24}
+                      color="red"
+                      onPress={() => deleteCartItem(item.id)}
+                    />
                   </View>
-                  <Ionicons
-                    name="trash-outline"
-                    size={24}
-                    color="red"
-                    onPress={() => deleteCartItem(item.id)}
-                  />
-                </View>
-              </Card.Content>
-            </Card>
-          ))}
-          <Divider style={styles.divider} />
-        </View>
-      ))}
-      <Button
-        mode="contained"
-        onPress={handleCheckout}
-        style={styles.checkoutButton}
-        labelStyle={styles.buttonText}>
-        Go To Checkout
-      </Button>
-    </ScrollView>
+                </Card.Content>
+              </Card>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+  
+      {/* Fixed Bottom Checkout Button */}
+      <View style={styles.checkoutContainer}>
+        <Button
+          mode="contained"
+          onPress={handleCheckout}
+          style={styles.checkoutButton}
+          labelStyle={styles.buttonText}>
+          Go To Checkout
+        </Button>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  checkoutContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+  },
   container: {
     flex: 1,
     padding: 10,
@@ -135,6 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
+    color:'grey'
   },
   cartStatus: {
     fontSize: 16,
@@ -175,8 +184,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
+    color:'black'
   },
   divider: {
     marginTop: 10,

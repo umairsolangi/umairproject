@@ -7,22 +7,24 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {Button, Modal} from 'react-native-paper';
+import {Button, IconButton, Modal} from 'react-native-paper';
 import {Pressable, ScrollView} from 'react-native-gesture-handler';
+import { useCart } from '../../Context/LmdContext';
 
 const CutomerShowBranches = ({navigation, route}) => {
   const cutomerdata = route.params.cutomerdata;
-
+  const {orderDetails, cartCount} = useCart();
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [Allcatagories, setAllcatagories] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
-  const [orderDetails, setOrderDetails] = useState([]);
-  const [cartCount, setCardCount] = useState(0);
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [customerFullData,setCustomerFullData]=useState({})
+  const [customerFullData, setCustomerFullData] = useState({});
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     console.log(cutomerdata);
@@ -30,19 +32,17 @@ const CutomerShowBranches = ({navigation, route}) => {
     getAllshopcatagories();
   }, []);
 
-  const getCustomerFullDetails=async()=>{
+  const getCustomerFullDetails = async () => {
     try {
-      const response = await fetch(
-        `${url}/customers/${cutomerdata.id}`,
-      );
+      const response = await fetch(`${url}/customers/${cutomerdata.id}`);
       const data = await response.json();
       if (data) {
-        setCustomerFullData(data) 
+        setCustomerFullData(data);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  }
+  };
 
   const getAllshopcatagories = async () => {
     try {
@@ -84,21 +84,22 @@ const CutomerShowBranches = ({navigation, route}) => {
     setFilteredItems(filtered);
   };
 
-  const addtocarditem = item => {
-    setOrderDetails(prev => [...prev, item]);
-    setCardCount(pre => pre + 1);
-  };
-  const showorderdetails = () => {
-    
-    console.log('card', orderDetails, 'card totoal items ', cartCount);
-    setModalVisible(true);
+
+  const handleSearch = text => {
+    setSearchText(text);
+
+    const filtered = branches.filter(item =>
+      item.shop_category_name.toLowerCase().includes(text.toLowerCase()),
+    );
+
+    setFilteredItems(filtered);
   };
   const renderBranch = ({item}) => (
     <Pressable
-      onPress={() => navigation.navigate('Branch Menu', {item, addtocarditem})}>
+      onPress={() => navigation.navigate('Branch Menu', {item})}>
       <View style={styles.card}>
-      <Image source={{ uri: item.branch_picture }} style={styles.image} />       
-   <TouchableOpacity style={styles.heartIcon}>
+        <Image source={{uri: item.branch_picture}} style={styles.image} />
+        <TouchableOpacity style={styles.heartIcon}>
           <Icon name="heart-outline" size={24} color="black" />
         </TouchableOpacity>
         <View style={styles.info}>
@@ -106,13 +107,15 @@ const CutomerShowBranches = ({navigation, route}) => {
             <View>
               <Text style={styles.name}>{item.shop_name}</Text>
               <Text style={styles.name}>({item.branch_description})</Text>
-              <Text style={styles.category}>{item.shop_category_name}</Text>
+              <Text style={[styles.category, {color: 'gray'}]}>
+                {item.shop_category_name}
+              </Text>
             </View>
             <View>
               <View style={styles.ratingContainer}>
                 <Icon name="star" size={16} color="gold" />
                 <Icon name="star" size={16} color="gold" />
-                <Text style={styles.rating}>
+                <Text style={[styles.rating, {color: 'gray'}]}>
                   {' '}
                   {item.rating} ({item.reviews_count} Ratings)
                 </Text>
@@ -127,9 +130,12 @@ const CutomerShowBranches = ({navigation, route}) => {
   return (
     <View style={styles.container}>
       {loading ? (
-        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                 <ActivityIndicator size="large" color="white" /* style={{marginTop: 20,alignSelf:'center'}}  *//>
-          </View> 
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator
+            size="large"
+            color="black" /* style={{marginTop: 20,alignSelf:'center'}}  */
+          />
+        </View>
       ) : (
         <>
           <View style={{backgroundColor: '#FA4A4A', flexDirection: 'column'}}>
@@ -145,7 +151,7 @@ const CutomerShowBranches = ({navigation, route}) => {
               </View>
               <Text
                 style={{
-                  fontSize: 20,
+                  fontSize: 15,
                   fontWeight: 'bold',
                   position: 'absolute',
                   right: 20,
@@ -154,18 +160,53 @@ const CutomerShowBranches = ({navigation, route}) => {
                   padding: 5,
                   color: 'white',
                   zIndex: 1,
-                  borderRadius: 10,
+                  borderRadius: 15,
                 }}>
                 {cartCount}
               </Text>
               <TouchableOpacity
                 style={styles.cartButton}
-                onPress={() => navigation.navigate('Cart Item', {orderDetails,cutomerdata})}>
-                <Icon name="cart-outline" size={50} color="#FA4A4A" />
+                onPress={() =>
+                  navigation.navigate('Cart Item', {orderDetails, cutomerdata})
+                }>
+                <Icon name="cart-outline" size={30} color="#FA4A4A" />
               </TouchableOpacity>
             </View>
+            <View style={{paddingHorizontal: 20, marginBottom: 10}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: 'white',
+                  borderRadius: 10,
+                  paddingHorizontal: 10,
+                }}>
+                <TextInput
+                  placeholder="Search"
+                  placeholderTextColor="white"
+                  style={{
+                    flex: 1,
+                    color: 'white',
+                    backgroundColor: 'transparent',
+                  }}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent"
+                  value={searchText}
+                  onChangeText={handleSearch}
+                />
+                <IconButton
+                  icon="magnify"
+                  size={24}
+                  iconColor="white"
+                  style={{backgroundColor: 'black', padding: 5, margin: 0}}
+                  onPress={() => handleSearch(searchText)}
+                />
+              </View>
+            </View>
+
             {/* Category Filter Buttons */}
-            <View style={{height: 50, marginBottom: 20}}>
+            <View style={{height: 50, marginBottom: 12,marginLeft:10}}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.categoryButtons}>
                   {Allcatagories.map((category, index) => (
@@ -189,7 +230,7 @@ const CutomerShowBranches = ({navigation, route}) => {
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               paddingTop: 20,
-              marginBottom: 180,
+              flex:1
             }}>
             {/* Branch List */}
             <FlatList
@@ -207,16 +248,16 @@ const CutomerShowBranches = ({navigation, route}) => {
               keyExtractor={item => item.branch_id.toString()}
             />
           </View>
-         
+     
         </>
+
       )}
     </View>
-    
   );
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#FA4A4A', padding: 0},
+  container: { backgroundColor: '#edf0ee',minHeight:300,flex:1},
   header: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -271,8 +312,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginRight: 30,
   },
-  
- 
 });
 
 export default CutomerShowBranches;

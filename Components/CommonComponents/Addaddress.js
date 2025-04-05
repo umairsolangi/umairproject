@@ -5,8 +5,7 @@ import MapView, { Marker } from "react-native-maps";
 import { Button, TextInput } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const CustomerAddnewAddress = ({ navigation,route }) => {
-    const cutomerdata = route.params.cutomerdata;
+const AddnewAddress = ({ navigation,route }) => {
 
   const [region, setRegion] = useState({
     latitude: 33.6844, // Default location (Karachi)
@@ -36,40 +35,12 @@ const CustomerAddnewAddress = ({ navigation,route }) => {
       return;
     }
 
-
-
-
-
- try {
       const shopData = {
         ...address,
         latitude: region.latitude,
         longitude: region.longitude,
       }
-
-      const response = await fetch(`${url}/customers/${cutomerdata.id}/add-address`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(shopData),
-      });
-
-      if (response.ok) {
-        alert("Address saved successfully!");
-        navigation.goBack();
-    
-      } else {
-        Alert.alert('Error', 'Failed to saved Address');
-      }
-    } catch (error) {
-      console.error('Error to saved Address:', error);
-      Alert.alert('Error', 'Failed to saved Address');
-    }
-
-
-
-
-
-
+      console.log(shopData)
   };
 
   return (
@@ -148,7 +119,7 @@ const CustomerAddnewAddress = ({ navigation,route }) => {
   );
 };
 
-export default CustomerAddnewAddress;
+export default AddnewAddress;
 
 const styles = StyleSheet.create({
   container: {
@@ -214,6 +185,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8544B",
     paddingVertical: 8,
     borderRadius: 8,
-    justifyContent:'flex-end'
+    marginTop:20
   },
 });

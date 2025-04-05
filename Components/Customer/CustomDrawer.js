@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useCart } from "../../Context/LmdContext";
 
 const CustomDrawer = (props) => {
   const { navigation, route } = props;
   const customerData = route?.params?.customerdata
+    const {clearCart} = useCart();
+  
   const[ user,setuser]=useState('')
   // Get customer data from params
 
@@ -32,7 +35,8 @@ const fetchuser=async()=>{
       {
         text: "Logout",
         onPress: async () => {
-          
+
+          clearCart();
           navigation.replace("Login");
         },
       },
@@ -48,7 +52,7 @@ const fetchuser=async()=>{
           <Icon name="account-circle" size={80} color="gray" />
         )}
 
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>{customerData.name}</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 ,color: "gray"}}>{customerData.name}</Text>
         <Text style={{ fontSize: 14, color: "gray" }}>{customerData.email}</Text>
 
       </View>

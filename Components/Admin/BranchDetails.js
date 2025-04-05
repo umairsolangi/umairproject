@@ -32,7 +32,7 @@ const BranchDetails = () => {
       );
       
       if (!response.ok) {
-        // Handle 404 and other errors
+       
         const errorData = await response.json();
         console.warn('Error fetching rejection reasons:', errorData.message);
         return;
@@ -40,12 +40,12 @@ const BranchDetails = () => {
 
       const data = await response.json();
       setRejectedReasons(data);
-      console.log(data) // Set state with rejection reasons
+      console.log(data) 
     } catch (error) {
       console.error('Network error fetching rejection reasons:', error);
     }
   };
-  // Toggle selection for rejection reasons
+ 
   const toggleReason = reason => {
     if (selectedReasons.includes(reason)) {
       setSelectedReasons(selectedReasons.filter(r => r !== reason));
@@ -72,7 +72,7 @@ const BranchDetails = () => {
     }
   };
 
-  // Reject vendor API call
+  
   const handleReject = async () => {
     if (selectedReasons.length === 0) {
       alert('Please select at least one reason for rejection.');

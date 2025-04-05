@@ -7,11 +7,10 @@ import {ScrollView} from 'react-native-gesture-handler';
 const VendorDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const {vendor} = route.params; // Get vendor details from navigation params
-
+  const {vendor} = route.params; 
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedReasons, setSelectedReasons] = useState([]);
-  const [rejectedReasons, setRejectedReasons] = useState([]); // Store reasons if vendor is rejected
+  const [rejectedReasons, setRejectedReasons] = useState([]); 
 
   const rejectionReasons = [
     'Incomplete Profile',
@@ -32,19 +31,17 @@ const VendorDetails = () => {
       );
 
       if (!response.ok) {
-        // Handle 404 and other errors
         const errorData = await response.json();
         console.warn('Error fetching rejection reasons:', errorData.message);
         return;
       }
 
       const data = await response.json();
-      setRejectedReasons(data); // Set state with rejection reasons
+      setRejectedReasons(data); 
     } catch (error) {
       console.error('Network error fetching rejection reasons:', error);
     }
   };
-  // Toggle selection for rejection reasons
   const toggleReason = reason => {
     if (selectedReasons.includes(reason)) {
       setSelectedReasons(selectedReasons.filter(r => r !== reason));
@@ -53,7 +50,6 @@ const VendorDetails = () => {
     }
   };
 
-  // Accept vendor API call
   const handleAccept = async () => {
     try {
       const response = await fetch(
