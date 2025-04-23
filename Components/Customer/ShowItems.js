@@ -18,13 +18,15 @@ import { useCart } from '../../Context/LmdContext';
 const ShowItems = ({navigation, route}) => {
   const branchdata = route.params.item;
   const {addToCart} = useCart();
-  const [branchItem, setBranchItem] = useState('');
+  const [branchItem, setBranchItem] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [Allcatagories, setAllcatagories] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingBrances, setLoadingBrances] = useState(true);
+
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
@@ -40,7 +42,6 @@ const ShowItems = ({navigation, route}) => {
       const data = await response.json();
       if (data) {
         setAllcatagories([{id: 'all', name: 'All'}, ...data.categories]);
-        setFilteredItems(data);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -56,9 +57,13 @@ const ShowItems = ({navigation, route}) => {
       const data = await response.json();
       if (data != 'No menu information found for this vendor/shop/branch') {
         setBranchItem(data);
+        setFilteredItems(data)
       }
     } catch (error) {
       console.error('Error fetching branches:', error);
+    }
+    finally {
+      setLoadingBrances(false);
     }
   };
   const filterItems = id => {
@@ -129,13 +134,12 @@ const ShowItems = ({navigation, route}) => {
               {branchdata.reviews_count} reviews
             </Text>
           </View>
-          <Text style={styles.minOrder}>Minimum order Rs.200</Text>
         </View>
         {/*  <TouchableOpacity style={styles.cartButton} onPress={showorderdetails}>
           <Icon name="shopping-cart" size={24} color="white" />
         </TouchableOpacity> */}
       </View>
-      {loading ? (
+      {loading && loadingBrances? (
         <ActivityIndicator
           size="large"
           color="black"
@@ -204,7 +208,7 @@ const ShowItems = ({navigation, route}) => {
             numColumns={2}
             columnWrapperStyle={{justifyContent: 'space-between'}}
 
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.item_id}
             ListEmptyComponent={() => (
               <View style={{alignItems: 'center', marginTop: 20}}>
                 <Text style={{fontSize: 18, fontWeight: 'bold', color: 'gray'}}>
@@ -316,7 +320,7 @@ const ShowItems = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff', padding: 10},
   header: {flexDirection: 'row', alignItems: 'center', marginBottom: 10},
-  branchImage: {width: 150, height: 150, borderRadius: 10},
+  branchImage: {width: 150, height: 120, borderRadius: 10},
   branchDetails: {flex: 1, marginLeft: 10},
   branchName: {fontSize: 18, fontWeight: 'bold', color: 'black'},
   ratingContainer: {flexDirection: 'row', alignItems: 'center'},

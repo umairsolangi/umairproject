@@ -12,7 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Button, IconButton, Modal} from 'react-native-paper';
 import {Pressable, ScrollView} from 'react-native-gesture-handler';
-import { useCart } from '../../Context/LmdContext';
+import {useCart} from '../../Context/LmdContext';
 
 const CutomerShowBranches = ({navigation, route}) => {
   const cutomerdata = route.params.cutomerdata;
@@ -52,7 +52,7 @@ const CutomerShowBranches = ({navigation, route}) => {
         setAllcatagories([{id: 'all', name: 'All'}, ...data]);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Reload Page');
     }
   };
 
@@ -84,7 +84,6 @@ const CutomerShowBranches = ({navigation, route}) => {
     setFilteredItems(filtered);
   };
 
-
   const handleSearch = text => {
     setSearchText(text);
 
@@ -96,30 +95,29 @@ const CutomerShowBranches = ({navigation, route}) => {
   };
   const renderBranch = ({item}) => (
     <Pressable
+      style={styles.card}
       onPress={() => navigation.navigate('Branch Menu', {item})}>
-      <View style={styles.card}>
-        <Image source={{uri: item.branch_picture}} style={styles.image} />
-        <TouchableOpacity style={styles.heartIcon}>
-          <Icon name="heart-outline" size={24} color="black" />
-        </TouchableOpacity>
-        <View style={styles.info}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View>
-              <Text style={styles.name}>{item.shop_name}</Text>
-              <Text style={styles.name}>({item.branch_description})</Text>
-              <Text style={[styles.category, {color: 'gray'}]}>
-                {item.shop_category_name}
+      <Image source={{uri: item.branch_picture}} style={styles.image} />
+      <TouchableOpacity style={styles.heartIcon}>
+        <Icon name="heart-outline" size={24} color="black" />
+      </TouchableOpacity>
+      <View style={styles.info}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <View>
+            <Text style={styles.name}>{item.shop_name}</Text>
+            <Text style={styles.name}>({item.branch_description})</Text>
+            <Text style={[styles.category, {color: 'gray'}]}>
+              {item.shop_category_name}
+            </Text>
+          </View>
+          <View>
+            <View style={styles.ratingContainer}>
+              <Icon name="star" size={16} color="gold" />
+              <Icon name="star" size={16} color="gold" />
+              <Text style={[styles.rating, {color: 'gray'}]}>
+                {' '}
+                {item.rating} ({item.reviews_count} Ratings)
               </Text>
-            </View>
-            <View>
-              <View style={styles.ratingContainer}>
-                <Icon name="star" size={16} color="gold" />
-                <Icon name="star" size={16} color="gold" />
-                <Text style={[styles.rating, {color: 'gray'}]}>
-                  {' '}
-                  {item.rating} ({item.reviews_count} Ratings)
-                </Text>
-              </View>
             </View>
           </View>
         </View>
@@ -144,6 +142,7 @@ const CutomerShowBranches = ({navigation, route}) => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                paddingHorizontal: 10,
               }}>
               <View>
                 <Text style={styles.header}>Hey {cutomerdata.name}</Text>
@@ -151,19 +150,24 @@ const CutomerShowBranches = ({navigation, route}) => {
               </View>
               <Text
                 style={{
+                  width: 30,
+                  height: 30,
                   fontSize: 15,
                   fontWeight: 'bold',
                   position: 'absolute',
-                  right: 20,
+                  right: 10,
                   top: 10,
                   backgroundColor: 'black',
-                  padding: 5,
                   color: 'white',
+                  textAlign: 'center',
+                  textAlignVertical: 'center', // may not work on iOS
+                  lineHeight: 30, // ensures vertical centering
                   zIndex: 1,
                   borderRadius: 15,
                 }}>
                 {cartCount}
               </Text>
+
               <TouchableOpacity
                 style={styles.cartButton}
                 onPress={() =>
@@ -172,7 +176,7 @@ const CutomerShowBranches = ({navigation, route}) => {
                 <Icon name="cart-outline" size={30} color="#FA4A4A" />
               </TouchableOpacity>
             </View>
-            <View style={{paddingHorizontal: 20, marginBottom: 10}}>
+            <View style={{marginBottom: 10, paddingHorizontal: 10}}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -199,14 +203,14 @@ const CutomerShowBranches = ({navigation, route}) => {
                   icon="magnify"
                   size={24}
                   iconColor="white"
-                  style={{backgroundColor: 'black', padding: 5, margin: 0}}
+                  style={{backgroundColor: 'black', padding: 5}}
                   onPress={() => handleSearch(searchText)}
                 />
               </View>
             </View>
 
             {/* Category Filter Buttons */}
-            <View style={{height: 50, marginBottom: 12,marginLeft:10}}>
+            <View style={{height: 50, marginBottom: 12}}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.categoryButtons}>
                   {Allcatagories.map((category, index) => (
@@ -225,12 +229,11 @@ const CutomerShowBranches = ({navigation, route}) => {
           </View>
           <View
             style={{
-              marginTop: 0,
               backgroundColor: 'white',
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
-              paddingTop: 20,
-              flex:1
+              padding: 10,
+              flex: 1,
             }}>
             {/* Branch List */}
             <FlatList
@@ -248,21 +251,18 @@ const CutomerShowBranches = ({navigation, route}) => {
               keyExtractor={item => item.branch_id.toString()}
             />
           </View>
-     
         </>
-
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: '#edf0ee',minHeight:300,flex:1},
+  container: {backgroundColor: '#edf0ee', minHeight: 300, flex: 1},
   header: {
     fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
-    marginLeft: 20,
     marginTop: 20,
   },
   subHeader: {
@@ -270,13 +270,11 @@ const styles = StyleSheet.create({
     color: 'white',
     marginTop: 4,
     marginBottom: 20,
-    marginLeft: 20,
   },
   card: {
     backgroundColor: '#f5f0f0',
     borderRadius: 10,
     padding: 10,
-    marginHorizontal: 20,
     marginBottom: 15,
     elevation: 5,
     shadowColor: '#000',
@@ -310,7 +308,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 3,
     borderRadius: 5,
-    marginRight: 30,
+    marginRight: 20,
   },
 });
 

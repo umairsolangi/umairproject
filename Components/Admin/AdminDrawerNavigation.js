@@ -19,7 +19,7 @@ const AdminDrawerNavigation = ({navigation, route}) => {
       drawerContent={props => <AdminCustomDrawer {...props} route={route} />}
       screenOptions={{
         drawerStyle: {backgroundColor: '#f7f7f7', width: 300},
-        drawerLabelStyle: {fontSize: 20, fontWeight: 'bold', color: '#5c5959'},
+        drawerLabelStyle: {fontSize: 15, fontWeight: 'bold', color: '#5c5959'},
         drawerActiveBackgroundColor: '#faebeb',
         drawerActiveTintColor: '#F8544B',
         drawerInactiveTintColor: '#666',

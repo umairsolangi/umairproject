@@ -1,12 +1,21 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View, Image, Modal} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
 import {Button, TextInput} from 'react-native-paper';
 
 const Login = ({navigation}) => {
-  const [email, setEmail] = useState('ali@gmail.com');
+  const [email, setEmail] = useState('mk@gmail.com');
   const [password, setPassword] = useState('0000');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const onPressButton = async () => {
     if (!email || !password) {
@@ -15,9 +24,10 @@ const Login = ({navigation}) => {
       return;
     }
 
-    const user = { email, password };
+    const user = {email, password};
 
     try {
+      setLoading(true);
       const response = await fetch(`${url}/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -25,71 +35,127 @@ const Login = ({navigation}) => {
       });
 
       if (response.ok) {
-        var data = await response.json();
+        const data = await response.json();
         console.log(data);
 
         if (data.message === 'Login successful') {
-          setModalMessage('Login Successful');
-          
-          setTimeout(() => {
-            setModalVisible(false);
-            if (data.user.role === 'vendor') {
-              navigation.navigate('Vendor Dashboard', { vendordata: data.user });
-            } else if (data.user.role === 'admin') {
-              navigation.navigate('Admin Dashboard', { Admindata: data.user });
-            } else {
-              navigation.navigate('Customer Dashboard', { customerdata: data.user });
-            }
-          }, 1000);
-        } else {
-          setModalMessage('Invalid credentials');
-          setModalVisible(true);
-          setTimeout(() => {
-            setModalVisible(false);
-          }, 1000);
+          if (data.user.role === 'vendor') {
+            navigation.navigate('Vendor Dashboard', {vendordata: data.user});
+          } else if (data.user.role === 'admin') {
+            navigation.navigate('Admin Dashboard', {Admindata: data.user});
+          } else if (data.user.role === 'customer') {
+            navigation.navigate('Customer Dashboard', {
+              customerdata: data.user,
+            });
+          } else if (data.user.role === 'organization') {
+            navigation.navigate('Organization Dashboard', {
+              customerdata: data.user,
+            });
+          } else if (data.user.role === 'deliveryboy') {
+            navigation.navigate('Rider Dashboard', {userdata: data.user});
+          }
         }
       } else {
-        setModalMessage('Login Failed');
-        setModalVisible(true);
-        setTimeout(() => {
-          setModalVisible(false);
-        }, 1000);
+        setErrorMessage('Login Failed');
+        setErrorModalVisible(true);
+        setTimeout(() => setErrorModalVisible(false), 3000);
       }
     } catch (error) {
-      console.error('Error login:', error);
-      setModalMessage('Failed to Login');
-      setModalVisible(true);
-      setTimeout(() => {
-        setModalVisible(false);
-      }, 1000);
+      setErrorMessage('Failed to Login:', error);
+      setErrorModalVisible(true);
+      setTimeout(() => setErrorModalVisible(false), 3000);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <Image source={require('../../Assets/Images/Logo2-png.png')} style={styles.logo} />
+        <Image
+          source={require('../../Assets/Images/Logo2-png.png')}
+          style={styles.logo}
+        />
 
-        <TextInput value={email} onChangeText={setEmail} mode="outlined" label="Email" placeholder="Enter Email" style={styles.input} />
-        <TextInput value={password} onChangeText={setPassword} mode="outlined" label="Password" placeholder="Enter Password" style={styles.input} secureTextEntry />
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          mode="outlined"
+          label="Email"
+          placeholder="Enter Email"
+          style={styles.input}
+        />
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          mode="outlined"
+          label="Password"
+          placeholder="Enter Password"
+          style={styles.input}
+          secureTextEntry
+        />
 
-        <Button mode="contained" uppercase={true} onPress={onPressButton} style={styles.loginButton}>
-          Login
-        </Button>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#F8544B"
+            style={{marginTop: 30}}
+          />
+        ) : (
+          <Button
+            mode="contained"
+            uppercase={true}
+            onPress={onPressButton}
+            style={styles.loginButton}>
+            Login
+          </Button>
+        )}
 
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Don’t have an account?</Text>
-          <Button onPress={() => navigation.navigate('Signup Options')} textColor='#F8544B'>
+          <Button
+            onPress={() => navigation.navigate('Signup Options')}
+            textColor="#F8544B"
+            style={{marginLeft: -10}}>
             SignUp
           </Button>
         </View>
       </View>
 
-      {/* Modal for success or error messages */}
-      <Modal transparent={true} visible={modalVisible} animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalMessage}>{modalMessage}</Text>
+      <Modal
+        transparent
+        visible={errorModalVisible}
+        animationType="slide"
+        onRequestClose={() => setErrorModalVisible(false)}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              borderRadius: 20,
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                marginTop: 10,
+                textAlign: 'center',
+                color: 'black',
+              }}>
+              {errorMessage}
+            </Text>
+
+            <Button
+              mode="contained"
+              onPress={() => setErrorModalVisible(false)}
+              style={{marginTop: 20, backgroundColor: '#F8544B'}}>
+              OK
+            </Button>
           </View>
         </View>
       </Modal>
@@ -114,7 +180,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: 300,
-    marginTop:20
+    marginTop: 20,
   },
   loginButton: {
     backgroundColor: '#F8544B',

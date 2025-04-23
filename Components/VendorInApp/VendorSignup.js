@@ -14,6 +14,7 @@ import {RadioButton, TextInput, Button, Menu} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, {Marker} from 'react-native-maps';
 import {SelectList} from 'react-native-dropdown-select-list';
+import AddnewAddress from '../CommonComponents/Addaddress';
 
 const VendorSignup = ({navigation}) => {
   const [name, setName] = useState('');
@@ -24,54 +25,39 @@ const VendorSignup = ({navigation}) => {
   const [cnic, setCnic] = useState('');
   const [profile_picture, setProfilePicture] = useState(null);
   const [vendor_type, setVendorType] = useState('In-App Vendor');
-  const [address_type, setAddressType] = useState('Home'); // New field
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const addressOptions = [
-    {key: 'Home', value: 'Home'},
-    {key: 'Business', value: 'Business'},
-  ];
-
   const handleImageSelection = async type => {
-      const options = {mediaType: 'photo', quality: 1};
-      let result;
-  
-      if (type === 'camera') {
-        result = await ImagePicker.launchCamera(options);
-      } else {
-        result = await ImagePicker.launchImageLibrary(options);
-      }
-  
-      if (!result.didCancel && result.assets?.length > 0) {
-        setProfilePicture(result.assets[0].uri);
-      }
-      setModalVisible(false);
-    };
+    const options = {mediaType: 'photo', quality: 1};
+    let result;
 
-  const [region, setRegion] = useState({
-    latitude: 33.647549,
-    longitude: 73.074145,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  });
+    if (type === 'camera') {
+      result = await ImagePicker.launchCamera(options);
+    } else {
+      result = await ImagePicker.launchImageLibrary(options);
+    }
 
+    if (!result.didCancel && result.assets?.length > 0) {
+      setProfilePicture(result.assets[0].uri);
+    }
+    setModalVisible(false);
+  };
   const [address, setAddress] = useState({
     street: '',
     city: '',
     zip_code: '',
     country: '',
-    latitude: region.latitude,
-    longitude: region.longitude,
+    address_type: '',
+    latitude: '',
+    longitude: '',
   });
 
   const handleRegionChange = newRegion => {
-    setRegion(newRegion);
-    setAddress(prev => ({
-      ...prev,
-      latitude: newRegion.latitude,
-      longitude: newRegion.longitude,
-    }));
+    setAddress(newRegion);
+    console.log(newRegion);
+
+    setVisible(false);
   };
 
   const handleSaveLocation = () => {
@@ -80,14 +66,7 @@ const VendorSignup = ({navigation}) => {
 
   const handleSignup = async () => {
     // Input Validation
-    if (
-      !name ||
-      !email ||
-      !phone_no ||
-      !password ||
-      !cpassword ||
-      !cnic 
-    ) {
+    if (!name || !email || !phone_no || !password || !cpassword || !cnic) {
       Alert.alert('Error', 'Please fill in all required fields.');
       return;
     }
@@ -98,28 +77,7 @@ const VendorSignup = ({navigation}) => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('phone_no', phone_no);
-      formData.append('password', password);
-      formData.append('cnic', cnic);
-      formData.append('vendor_type', vendor_type);
-      formData.append('address_type', address_type);
-      formData.append('street', address.street);
-      formData.append('city', address.city);
-      formData.append('zip_code', address.zip_code);
-      formData.append('country', address.country);
-      formData.append('latitude', region.latitude);
-      formData.append('longitude', region.longitude);
 
-      if (profile_picture) {
-        formData.append('profile_picture', {
-          uri: profile_picture,
-          type: 'image/jpeg',
-          name: 'profile.jpg',
-        });
-      }
 
       const response = await fetch(`${url}/vendor/signup`, {
         method: 'POST',
@@ -145,10 +103,10 @@ const VendorSignup = ({navigation}) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={[styles.title,{color:'#F8544B',}]}>Vendor Signup</Text>
-
       {/* Upload Image Section */}
-      <Pressable  onPress={() => setModalVisible(true)} style={styles.profileImage}>
+      <Pressable
+        onPress={() => setModalVisible(true)}
+        style={styles.profileImage}>
         {profile_picture ? (
           <Image source={{uri: profile_picture}} style={styles.image} />
         ) : (
@@ -185,34 +143,32 @@ const VendorSignup = ({navigation}) => {
         onChangeText={setCnic}
       />
 
-      {/* Address Type Dropdown */}
-      <View style={styles.dropdown}>
-        <SelectList
-          boxStyles={{paddingHorizontal: 20, }}
-          inputStyles={{color:'black'}}
-          dropdownTextStyles={{color:'black'}}
-          placeholder="Select Address Type"
-          save="key"
-          setSelected={setAddressType}
-          data={addressOptions}
-        />
-      </View>
-
-      {/* Address Picker */}
       <Pressable onPress={() => setVisible(true)} style={styles.locationBox}>
         <View style={styles.uploadLocationContainer}>
-          <Text style={[styles.uploadText, {fontSize: 15,alignSelf:'flex-start',marginRight:170}]}>Add Address</Text>
-          <Icon name="location-on" size={30} color="red" />
+          {address.address_type == '' ? (
+            <>
+              <Text
+                style={[
+                  styles.uploadText,
+                  {fontSize: 15, alignSelf: 'flex-start', marginRight: 170},
+                ]}>
+                {address.address_type == ''
+                  ? 'Add Address'
+                  : ` ${address.street}, ${address.city},${address.country}`}
+              </Text>
+              <Icon name="location-on" size={30} color="red" />
+            </>
+          ) : (
+            <Text
+              style={[
+                styles.uploadText,
+                {fontSize: 17, alignSelf:'flex-start', color:'black'},
+              ]}>
+              {` ${address.street}, ${address.city},${address.country}`}
+            </Text>
+          )}
         </View>
       </Pressable>
-
-      {/* ZIP Code */}
-      <TextInput
-        mode="outlined"
-        label="ZIP Code"
-        style={styles.input}
-        onChangeText={text => setAddress(prev => ({...prev, zip_code: text}))}
-      />
 
       <TextInput
         mode="outlined"
@@ -254,112 +210,59 @@ const VendorSignup = ({navigation}) => {
       <Button
         mode="contained"
         onPress={handleSignup}
-        style={{ backgroundColor: '#F8544B',
-          alignSelf: 'center',
+        style={{
+          backgroundColor: '#F8544B',
           borderRadius: 10,
-          marginTop: 10,
-          marginLeft: 10,
-          marginRight: 0,
-          width: 150,}}>
+        }}>
         Sign Up
       </Button>
 
       {/* Location Picker Modal */}
       <Modal visible={visible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Location</Text>
-            <MapView
-              style={styles.map}
-              initialRegion={region}
-              
-              onRegionChangeComplete={handleRegionChange}>
-              <Marker
-                coordinate={{
-                  latitude: region.latitude,
-                  longitude: region.longitude,
-                }}
-              />
-            </MapView>
-
-            <TextInput
-              label="Street"
-              value={address.street}
-              onChangeText={text => setAddress({...address, street: text})}
-              style={styles.input}
-            />
-            <TextInput
-              label="City"
-              value={address.city}
-              onChangeText={text => setAddress({...address, city: text})}
-              style={styles.input}
-            />
-            <TextInput
-              label="Country"
-              value={address.country}
-              onChangeText={text => setAddress({...address, country: text})}
-              style={styles.input}
-            />
-
-            <View style={styles.buttonRow}>
-              <Button
-                mode="contained"
-                onPress={handleSaveLocation}
-                style={[styles.button,{backgroundColor:'#F8544B'}]}>
-                Save
-              </Button>
-              <Button
-                mode="outlined"
-                onPress={() => setVisible(false)}
-                style={styles.button}>
-                Cancel
-              </Button>
-            </View>
-          </View>
-        </View>
+        <AddnewAddress AddLocation={handleRegionChange} addressobj={address}/>
       </Modal>
-          <Modal transparent={true} visible={modalVisible} animationType="slide">
-              <Pressable
-                style={{
-                  flex: 1,
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                  justifyContent: 'flex-end',
-                }}
-                onPress={() => setModalVisible(false)}>
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    padding: 20,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    alignItems: 'center',
-                  }}>
-                  <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
-                    Select Image
-                  </Text>
-      
-                  <Button
-                    mode="contained"
-                    icon="camera"
-                    onPress={() => handleImageSelection('camera')}
-                    style={{width: '70%', marginBottom: 10}}>
-                    Take Photo
-                  </Button>
-      
-                  <Button
-                    mode="contained"
-                    icon="image"
-                    onPress={() => handleImageSelection('gallery')}
-                    style={{width: '70%', marginBottom: 10}}>
-                    Choose from Gallery
-                  </Button>
-      
-                  <Button mode="text" onPress={() => setModalVisible(false)}>
-                    Cancel
-                  </Button>
-                </View>
-              </Pressable>
-            </Modal>
+      <Modal transparent={true} visible={modalVisible} animationType="slide">
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'flex-end',
+          }}
+          onPress={() => setModalVisible(false)}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+              Select Image
+            </Text>
+
+            <Button
+              mode="contained"
+              icon="camera"
+              onPress={() => handleImageSelection('camera')}
+              style={{width: '70%', marginBottom: 10}}>
+              Take Photo
+            </Button>
+
+            <Button
+              mode="contained"
+              icon="image"
+              onPress={() => handleImageSelection('gallery')}
+              style={{width: '70%', marginBottom: 10}}>
+              Choose from Gallery
+            </Button>
+
+            <Button mode="text" onPress={() => setModalVisible(false)}>
+              Cancel
+            </Button>
+          </View>
+        </Pressable>
+      </Modal>
     </ScrollView>
   );
 };
@@ -457,7 +360,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 10,
     backgroundColor: '#F8544B',
-
   },
   modalContainer: {
     flex: 1,
@@ -476,7 +378,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 15,
-    color:'black'
+    color: 'black',
   },
   map: {
     width: '100%',
@@ -491,6 +393,5 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 5,
     padding: 10,
-    
   },
 });

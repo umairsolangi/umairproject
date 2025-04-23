@@ -5,6 +5,8 @@ import CustomerDashboard from './CutomerShowBranches';
 import CustomDrawer from './CustomDrawer';
 import CustomerShowSaveCard from './CustomerShowSaveCard';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import CustomerShowOrders from './CustomerShowOrders';
+import CustomerShowAddress from './CustomerShowAddress';
 
 const Drawer = createDrawerNavigator();
 
@@ -25,22 +27,23 @@ const CustomerDrawerNavigation = ({navigation, route}) => {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
-  return (
-    loading ? (
-      <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-          <ActivityIndicator size="large" color="black" /* style={{marginTop: 20,alignSelf:'center'}}  *//>
-        </View>   
-        ) : (
+  return loading ? (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <ActivityIndicator
+        size="large"
+        color="black" /* style={{marginTop: 20,alignSelf:'center'}}  */
+      />
+    </View>
+  ) : (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} route={route} />}
       screenOptions={{
         drawerStyle: {backgroundColor: '#f7f7f7', width: 250},
-        drawerLabelStyle: {fontSize: 20, fontWeight: 'bold', color: '#5c5959'},
+        drawerLabelStyle: {fontSize: 15, fontWeight: 'bold', color: '#5c5959'},
         drawerActiveBackgroundColor: '#faebeb',
         drawerActiveTintColor: '#F8544B',
         drawerInactiveTintColor: '#666',
@@ -59,7 +62,7 @@ const CustomerDrawerNavigation = ({navigation, route}) => {
       <Drawer.Screen
         name="Save Cart"
         component={CustomerShowSaveCard}
-        initialParams={{customerFullData,cutomerdata}}
+        initialParams={{customerFullData, cutomerdata}}
         options={{
           drawerLabel: 'Save Cart',
           drawerIcon: ({color, size}) => (
@@ -67,8 +70,35 @@ const CustomerDrawerNavigation = ({navigation, route}) => {
           ),
         }}
       />
+      <Drawer.Screen
+        name="Your Orders"
+        component={CustomerShowOrders}
+        initialParams={{cutomerdata: customerFullData}}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <MaterialCommunityIcons
+              name="clipboard-list"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Address"
+        component={CustomerShowAddress}
+        initialParams={{cutomerdata}}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <MaterialCommunityIcons
+              name="map-marker"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
     </Drawer.Navigator>
-        )
   );
 };
 

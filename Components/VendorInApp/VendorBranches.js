@@ -148,9 +148,9 @@ const VendorBranches = ({navigation, route}) => {
       ShopDetails.id,
       postalCode,
       branchPicture,
-      description
+      description,
     );
-  
+
     if (
       !latitude ||
       !longitude ||
@@ -163,12 +163,12 @@ const VendorBranches = ({navigation, route}) => {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
-  
+
     try {
       let formData = new FormData();
       formData.append('shops_ID', ShopDetails.id);
-      formData.append('latitude', latitude.toFixed(6));  
-      formData.append('longitude', longitude.toFixed(6)); 
+      formData.append('latitude', latitude.toFixed(6));
+      formData.append('longitude', longitude.toFixed(6));
       formData.append('description', description);
       formData.append('opening_hours', openingHours);
       formData.append('closing_hours', closingHours);
@@ -176,7 +176,7 @@ const VendorBranches = ({navigation, route}) => {
       formData.append('city_ID', cityID);
       formData.append('area_name', areaName);
       formData.append('postal_code', postalCode);
-  
+
       if (branchPicture) {
         formData.append('branch_picture', {
           uri: branchPicture,
@@ -184,27 +184,25 @@ const VendorBranches = ({navigation, route}) => {
           type: 'image/jpeg',
         });
       }
-  
+
       const response = await fetch(`${url}/branches`, {
         method: 'POST',
         headers: {'Content-Type': 'multipart/form-data'},
         body: formData,
       });
-  
+
       if (response.ok) {
         Alert.alert('Success', 'Branch created successfully');
         setModalVisible(false);
         fetchBranches();
       } else {
-       Alert.alert('Error', 'Failed to create branch'); 
-       
+        Alert.alert('Error', 'Failed to create branch');
       }
     } catch (error) {
       console.log('Error creating branch:', error);
       Alert.alert('Error', 'Failed to create branch');
     }
   };
-  
 
   return (
     <>
@@ -217,26 +215,32 @@ const VendorBranches = ({navigation, route}) => {
         </View>
       ) : (
         <View style={{flex: 1, padding: 16, backgroundColor: 'white'}}>
-          <View style={{marginBottom: 20}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingHorizontal: 0,
+              width: '100%',
+              marginBottom: 10,
+              alignItems: 'center',
+            }}>
             <Text
               style={{
                 color: 'black',
-                fontSize: 30,
+                fontSize: 24,
                 fontWeight: 'bold',
+                flex: 4,
+                marginEnd: 10,
               }}>
               {ShopDetails.name}
             </Text>
             <Button
               onPress={() => setModalVisible(true)}
               mode="contained"
-              style={{
-                backgroundColor: '#F8544B',
-                borderRadius: 5,
-                width: 130,
-                height: 40,
-                alignSelf: 'flex-end',
-              }}>
-              Add branch
+              style={styles.button}
+              contentStyle={styles.buttonContent}
+              labelStyle={styles.buttonLabel}>
+              Add Branch
             </Button>
           </View>
 
@@ -247,14 +251,11 @@ const VendorBranches = ({navigation, route}) => {
               renderItem={({item}) => (
                 <View
                   style={{
-                    height: 140,
-                    paddingHorizontal: 15,
-                    paddingVertical: 10,
+                    padding: 8,
                     backgroundColor: '#f5f0f0',
                     marginBottom: 20,
                     borderRadius: 15,
-                    width: '95%',
-                    alignSelf: 'center',
+                    width: '100%',
                     flexDirection: 'row',
                     alignItems: 'center',
                     elevation: 5,
@@ -263,7 +264,6 @@ const VendorBranches = ({navigation, route}) => {
                     shadowOpacity: 0.1,
                     shadowRadius: 4,
                   }}>
-                  {/* Branch Image */}
                   <Image
                     source={{uri: item.branch_picture}}
                     style={{
@@ -271,12 +271,13 @@ const VendorBranches = ({navigation, route}) => {
                       height: 100,
                       borderRadius: 10,
                       backgroundColor: '#ddd',
+                      flex: 2,
                     }}
                     resizeMode="cover"
                   />
 
-                  {/* Branch Details */}
-                  <View style={{flex: 1, marginLeft: 20}}>
+                  <View
+                    style={{flex: 3, marginHorizontal: 10,}}>
                     <Text
                       style={{fontSize: 18, fontWeight: 'bold', color: '#333'}}>
                       {item.description}
@@ -292,50 +293,49 @@ const VendorBranches = ({navigation, route}) => {
 
                     <Button
                       onPress={() =>
-                        navigation.navigate('View Item', {
+                        navigation.navigate('BranchDashboard', {
                           branchData: item,
                           ShopDetails,
                           vendordata,
                         })
                       }
                       mode="text"
-                      textColor="grey"
-                      labelStyle={{fontSize: 16, fontWeight: 'bold'}}
+                      textColor="black"
+                      labelStyle={{fontSize: 14, fontWeight: 'bold'}}
                       style={{
-                        borderWidth: 1,
-                        borderRadius: 5,
+                        borderWidth: 2,
+                        borderRadius: 3,
+
                         marginTop: 5,
-                        width: 130,
+                        width: 150,
                         borderColor: 'grey',
                       }}>
-                      View Items
+                     Go to Dashboard
                     </Button>
                     {/* Status Switch */}
-                    <View
-                      style={{
-                        marginTop: 10,
-                        alignItems: 'center',
-                        position: 'absolute',
-                        right: 0,
-                        top: 10,
-                      }}>
-                      <Switch
-                        value={item.status === 'active'}
-                        onValueChange={() => toggleSwitch(item.branch_id)}
-                        trackColor={{false: '#ccc', true: '#4CAF50'}}
-                        thumbColor={
-                          item.status === 'active' ? '#fff' : '#f4f3f4'
-                        }
-                        ios_backgroundColor="#3e3e3e"
-                      />
-                      <TouchableOpacity
-                        onPress={() =>
-                          navigation.navigate('Edit Branch', {branchData: item})
-                        }
-                        style={{marginTop: 24}}>
-                        <Icon name="edit" size={34} color="black" />
-                      </TouchableOpacity>
-                    </View>
+                  </View>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                      flex: 1,
+                      padding:0,
+                      justifyContent:'space-between',
+                      height:96
+                    }}>
+                    <Switch
+                      value={item.status === 'active'}
+                      onValueChange={() => toggleSwitch(item.branch_id)}
+                      trackColor={{false: '#ccc', true: '#4CAF50'}}
+                      thumbColor={item.status === 'active' ? '#fff' : '#f4f3f4'}
+                      ios_backgroundColor="#3e3e3e"
+                    />
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('Edit Branch', {branchData: item})
+                      }
+                      style={{marginTop: 0}}>
+                      <Icon name="edit" size={28} color="green" />
+                    </TouchableOpacity>
                   </View>
                 </View>
               )}
@@ -350,124 +350,125 @@ const VendorBranches = ({navigation, route}) => {
             visible={modalVisible}
             transparent={true}
             animationType="slide">
-              <ScrollView>
-
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'rgba(0,0,0,0.5)',
-              }}>
+            <ScrollView>
               <View
                 style={{
-                  width: '100%',
-                  backgroundColor: 'white',
-                  padding: 10,
-                  borderRadius: 10,
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
                 }}>
-                <Text
+                <View
                   style={{
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                    marginBottom: 10,
-                    alignSelf: 'center',
-                    color:'#F8544B'
+                    width: '100%',
+                    backgroundColor: 'white',
+                    padding: 10,
+                    paddingTop: 50,
+                    borderRadius: 10,
                   }}>
-                  Create Branch
-                </Text>
-                <Pressable
-                  onPress={() => setImageModalVisible(true)}
-                  style={styles.profileImage}>
-                  {branchPicture ? (
-                    <Image source={{uri: branchPicture}} style={styles.image} />
-                  ) : (
-                    <View style={styles.uploadIconContainer}>
-                      <Icon name="cloud-upload" size={40} color="gray" />
-                      <Text style={styles.uploadText}>Upload Image</Text>
-                    </View>
-                  )}
-                </Pressable>
-                <TextInput
-                  label="Description"
-                  value={description}
-                  onChangeText={setDescription}
-                  mode="outlined"
-                  style={{marginBottom: 10}}
-                />
-                <TextInput
-                  label="Opening Hours (HH:MM)"
-                  value={openingHours}
-                  onChangeText={setOpeningHours}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={{marginBottom: 10}}
-                />
-                <TextInput
-                  label="Closing Hours (HH:MM)"
-                  value={closingHours}
-                  onChangeText={setClosingHours}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={{marginBottom: 10}}
-                />
-                <TextInput
-                  label="Contact Number"
-                  value={contactNumber}
-                  onChangeText={setContactNumber}
-                  mode="outlined"
-                  keyboardType="phone-pad"
-                  style={{marginBottom: 10}}
-                />
-                <SelectList
-                  setSelected={setCityID}
-                  data={cities}
-                  placeholder="Select City"
-                  dropdownTextStyles={{ color: "black" }}
-                  inputStyles={{ color: 'black' }}    
-                  boxStyles={{marginBottom: 10}}
-                />
-                <TextInput
-                  label="Area Name"
-                  value={areaName}
-                  onChangeText={setAreaName}
-                  mode="outlined"
-                  style={{marginBottom: 10}}
-                />
-                <TextInput
-                  label="Postal Code"
-                  value={postalCode}
-                  onChangeText={setPostalCode}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={{marginBottom: 10}}
-                />
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 'bold',
+                      marginBottom: 20,
+                      alignSelf: 'center',
+                      color: '#F8544B',
+                    }}>
+                    Create Branch
+                  </Text>
+                  <Pressable
+                    onPress={() => setImageModalVisible(true)}
+                    style={styles.profileImage}>
+                    {branchPicture ? (
+                      <Image
+                        source={{uri: branchPicture}}
+                        style={styles.image}
+                      />
+                    ) : (
+                      <View style={styles.uploadIconContainer}>
+                        <Icon name="cloud-upload" size={40} color="gray" />
+                        <Text style={styles.uploadText}>Upload Image</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                  <TextInput
+                    label="Description"
+                    value={description}
+                    onChangeText={setDescription}
+                    mode="outlined"
+                    style={{marginBottom: 10}}
+                  />
+                  <TextInput
+                    label="Opening Hours (HH:MM)"
+                    value={openingHours}
+                    onChangeText={setOpeningHours}
+                    mode="outlined"
+                    style={{marginBottom: 10}}
+                  />
+                  <TextInput
+                    label="Closing Hours (HH:MM)"
+                    value={closingHours}
+                    onChangeText={setClosingHours}
+                    mode="outlined"
+                    style={{marginBottom: 10}}
+                  />
+                  <TextInput
+                    label="Contact Number"
+                    value={contactNumber}
+                    onChangeText={setContactNumber}
+                    mode="outlined"
+                    keyboardType="phone-pad"
+                    style={{marginBottom: 10}}
+                  />
+                  <SelectList
+                    setSelected={setCityID}
+                    data={cities}
+                    placeholder="Select City"
+                    dropdownTextStyles={{color: 'black'}}
+                    inputStyles={{color: 'black'}}
+                    boxStyles={{marginBottom: 10}}
+                  />
+                  <TextInput
+                    label="Area Name"
+                    value={areaName}
+                    onChangeText={setAreaName}
+                    mode="outlined"
+                    style={{marginBottom: 10}}
+                  />
+                  <TextInput
+                    label="Postal Code"
+                    value={postalCode}
+                    onChangeText={setPostalCode}
+                    mode="outlined"
+                    keyboardType="numeric"
+                    style={{marginBottom: 10}}
+                  />
 
-                <Button
-                  mode="contained"
-                  onPress={() => setMapModalVisible(true)}
-                  style={{backgroundColor: '#4285F4', marginBottom: 10}}>
-                  Select Location on Map
-                </Button>
+                  <Button
+                    mode="contained"
+                    onPress={() => setMapModalVisible(true)}
+                    style={{backgroundColor: '#4285F4', marginBottom: 10}}>
+                    Select Location on Map
+                  </Button>
 
-                <Button
-                  mode="contained"
-                  onPress={createBranch}
-                  style={{backgroundColor: '#F8544B'}}>
-                  Create Branch
-                </Button>
+                  <Button
+                    mode="contained"
+                    onPress={createBranch}
+                    style={{backgroundColor: '#F8544B'}}>
+                    Create Branch
+                  </Button>
 
-                <Button
-                  mode="text"
-                  onPress={() => setModalVisible(false)}
-                  style={{marginTop: 10}}>
-                  Cancel
-                </Button>
+                  <Button
+                    mode="text"
+                    onPress={() => setModalVisible(false)}
+                    style={{marginTop: 10}}>
+                    Cancel
+                  </Button>
+                </View>
               </View>
-            </View>
             </ScrollView>
           </Modal>
-          
+
           <Modal
             visible={mapModalVisible}
             transparent={true}
@@ -484,8 +485,7 @@ const VendorBranches = ({navigation, route}) => {
                   longitude,
                   latitudeDelta: 0.1,
                   longitudeDelta: 0.1,
-                }}
-                >
+                }}>
                 {latitude && longitude && (
                   <Marker coordinate={{latitude, longitude}} />
                 )}
@@ -502,7 +502,7 @@ const VendorBranches = ({navigation, route}) => {
                 </Button>
                 <Button
                   mode="contained"
-                  style={{backgroundColor:'#F8544B'}}
+                  style={{backgroundColor: '#F8544B'}}
                   onPress={() => setMapModalVisible(false)}>
                   Confirm Location
                 </Button>
@@ -564,9 +564,9 @@ const VendorBranches = ({navigation, route}) => {
 export default VendorBranches;
 const styles = StyleSheet.create({
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: '100%',
+    height: 150,
+    borderRadius: 5,
     backgroundColor: '#f0f0f0',
     alignItems: 'center',
     justifyContent: 'center',
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    borderRadius: 50,
+    borderRadius: 5,
   },
   uploadIconContainer: {
     alignItems: 'center',
@@ -585,5 +585,20 @@ const styles = StyleSheet.create({
     color: 'gray',
     fontSize: 14,
     marginTop: 5,
+  },
+  button: {
+    backgroundColor: '#F8544B',
+    borderRadius: 5,
+
+    flex: 1,
+  },
+  buttonContent: {
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
+  buttonLabel: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

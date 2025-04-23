@@ -1,11 +1,8 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 
-const TestRout = () => {
+function TestRout() {
   return (
-    <View>
-      <Text>TestRout</Text>
-    </View>
+    <div>TestRout</div>
   )
 }
 

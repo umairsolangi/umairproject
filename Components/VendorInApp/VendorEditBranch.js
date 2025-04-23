@@ -79,24 +79,25 @@ const VendorEditBranch = ({navigation, route}) => {
 
   return (
     <View style={{flex: 1, padding: 20, backgroundColor: 'white'}}>
-      <Text
-        style={{
-          fontSize: 22,
-          fontWeight: 'bold',
-          textAlign: 'center',
-          marginBottom: 20,
-        }}>
-        Edit Branch
-      </Text>
+  
 
       {/* Image Upload */}
       <Pressable
         onPress={() => setModalVisible(true)}
-        style={{alignSelf: 'center', marginBottom: 20}}>
+        style={{ width:'100%',
+          height: 150,
+          borderRadius: 5,
+          backgroundColor: '#f0f0f0',
+          alignItems: 'center',
+          justifyContent: 'center',
+          alignSelf: 'center',
+          marginVertical: 10,}}>
         {branchPicture ? (
           <Image
             source={{uri: branchPicture}}
-            style={{width: 100, height: 100, borderRadius: 10}}
+            style={{width: '100%',
+              height: '100%',
+              borderRadius: 5,}}
           />
         ) : (
           <View style={{alignItems: 'center'}}>

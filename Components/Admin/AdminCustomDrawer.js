@@ -30,7 +30,7 @@ const AdminCustomDrawer = (props) => {
         ) : (
           <Icon name="account-circle" size={80} color="gray" />
         )}
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 }}>{admindata.name}</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 10 ,color:'black'}}>{admindata.name}</Text>
         <Text style={{ fontSize: 14, color: "gray" }}>{admindata.email}</Text>
 
       </View>

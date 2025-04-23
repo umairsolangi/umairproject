@@ -17,18 +17,24 @@ const AdminDashboard = ({navigation, route}) => {
           borderRadius: 10,
         }}>
         <Text
-          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
+          style={{
+            fontSize: 25,
+            fontWeight: 'bold',
+            alignSelf: 'flex-start',
+            color: 'black',
+          }}>
           Hey!{userdata.name}
-          </Text>
-          <Text
-          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
-          Welcome To Dashboard
-          </Text>
-
-        <Text
-          style={{fontSize: 25, fontWeight: 'bold', alignSelf: 'flex-start'}}>
-          Email: {userdata.email}
         </Text>
+        <Text
+          style={{
+            fontSize: 25,
+            fontWeight: 'bold',
+            alignSelf: 'flex-start',
+            color: 'black',
+          }}>
+          Welcome To Dashboard
+        </Text>
+     
       </View>
     </View>
   );

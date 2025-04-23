@@ -3,7 +3,7 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import { Button } from 'react-native-paper';
 
 const SignupOptions = ({navigation}) => {
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState('Customer');
 
   return (
     <View style={styles.container}>
@@ -11,7 +11,7 @@ const SignupOptions = ({navigation}) => {
         What type of account do you want to open?
       </Text>
 
-      {['Customers', 'Rider', 'Vendor'].map(role => (
+      {['Customer','Vendor','Organization'].map(role => (
         <TouchableOpacity
           key={role}
           style={[
@@ -33,7 +33,7 @@ const SignupOptions = ({navigation}) => {
       <Button
           mode="contained"
           uppercase={true}
-          onPress={() => navigation.navigate('Vendor Signup', {role: selectedRole})}
+          onPress={() => navigation.navigate('Signup', {role: selectedRole})}
           style={{
             backgroundColor: '#F8544B',
             alignSelf: 'center',
@@ -45,11 +45,27 @@ const SignupOptions = ({navigation}) => {
           }}>
           Continue
         </Button>)}
-        {selectedRole==='Customers' &&(
+        {selectedRole==='Customer' &&(
       <Button
           mode="contained"
           uppercase={true}
-          onPress={() => navigation.navigate('Customer Signup', {role: selectedRole})}
+          onPress={() => navigation.navigate('Signup', {role: selectedRole})}
+          style={{
+            backgroundColor: '#F8544B',
+            alignSelf: 'center',
+            borderRadius: 10,
+            marginTop: 10,
+            marginLeft: 10,
+            marginRight: 0,
+            width: 150,
+          }}>
+          Continue
+        </Button>)}
+        {selectedRole==='Organization' &&(
+      <Button
+          mode="contained"
+          uppercase={true}
+          onPress={() => navigation.navigate('Signup', {role: selectedRole})}
           style={{
             backgroundColor: '#F8544B',
             alignSelf: 'center',

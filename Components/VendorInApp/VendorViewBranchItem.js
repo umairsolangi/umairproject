@@ -12,15 +12,16 @@ import {
   Alert,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {ActivityIndicator, Button} from 'react-native-paper';
+import {ActivityIndicator, Button, IconButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const VendorViewBranchItem = ({navigation, route}) => {
-  const {branchData, ShopDetails,vendordata} = route.params;
+  const {branchData, ShopDetails, vendordata} = route.params;
   const [branchItem, setBranchItem] = useState('');
   const [Allcatagories, setAllcatagories] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     getAllBranchItems();
@@ -62,7 +63,7 @@ const VendorViewBranchItem = ({navigation, route}) => {
       return;
     }
 
-    const filtered = branchItem.filter(
+    const filtered = branchItem?.filter(
       e => String(e.item_category_id) === String(id),
     );
     setFilteredItems(filtered);
@@ -76,41 +77,50 @@ const VendorViewBranchItem = ({navigation, route}) => {
     );
     Alert.alert('Success', 'Item deleted successfully!');
   };
+  const handleSearch = text => {
+    setSearchText(text);
 
+    const filtered = branchItem.filter(item =>
+      item.item_name.toLowerCase().includes(text.toLowerCase()),
+    );
+
+    setFilteredItems(filtered);
+  };
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.branchDetails}>
-          <Text style={styles.branchName}>{branchData.description}</Text>
-          {branchData.approval_status == 'approved' &&
-                vendordata.vendor_type === 'In-App Vendor' && (
-          <Button
-            onPress={() =>
-              navigation.navigate('Add Item', {
-                item: branchData,
-                shopcatagory: ShopDetails.shopcategory_ID,
-                shopdetails: ShopDetails,
-              })
-            }
-            mode="contained"
-            style={{
-              backgroundColor: '#F8544B',
-              borderRadius: 5,
-              marginTop: 5,
-              marginBottom: 5,
-              width: 110,
-              height: 40,
-              padding: 0,
-            }}>
-            Add item
-          </Button>
+
+      <View style={styles.branchDetails}>
+        <Text style={styles.branchName}>{branchData.description}</Text>
+        {branchData.approval_status == 'approved' &&
+          vendordata.vendor_type === 'In-App Vendor' && (
+            <Button
+              onPress={() =>
+                navigation.navigate('Add Item', {
+                  item: branchData,
+                  shopcatagory: ShopDetails.shopcategory_ID,
+                  shopdetails: ShopDetails,
+                })
+              }
+              mode="contained"
+              style={{
+                backgroundColor: '#F8544B',
+                borderRadius: 5,
+                marginTop: 5,
+                marginBottom: 5,
+                width: 110,
+                height: 40,
+                padding: 0,
+                flex: 1,
+              }}>
+              Add item
+            </Button>
           )}
-        </View>
-        {/*  <TouchableOpacity style={styles.cartButton} onPress={showorderdetails}>
+      </View>
+      {/*  <TouchableOpacity style={styles.cartButton} onPress={showorderdetails}>
           <Icon name="shopping-cart" size={24} color="white" />
         </TouchableOpacity> */}
-      </View>
+
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -119,6 +129,38 @@ const VendorViewBranchItem = ({navigation, route}) => {
         />
       ) : (
         <>
+          <View style={{paddingHorizontal: 0, marginBottom: 10}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: 'black',
+                borderRadius: 10,
+                paddingHorizontal: 10,
+              }}>
+              <TextInput
+                placeholder="Search"
+                placeholderTextColor="black"
+                style={{
+                  flex: 1,
+                  color: 'black',
+                  backgroundColor: 'transparent',
+                }}
+                underlineColor="transparent"
+                activeUnderlineColor="transparent"
+                value={searchText}
+                onChangeText={handleSearch}
+              />
+              <IconButton
+                icon="magnify"
+                size={24}
+                iconColor="white"
+                style={{backgroundColor: 'black', padding: 5, margin: 0}}
+                onPress={() => handleSearch(searchText)}
+              />
+            </View>
+          </View>
           <View style={{height: 50}}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.categoryButtons}>
@@ -148,7 +190,7 @@ const VendorViewBranchItem = ({navigation, route}) => {
             numColumns={2}
             columnWrapperStyle={{justifyContent: 'space-between'}}
             minHeight={30}
-            keyExtractor={item => item.id}
+            keyExtractor={item => (item.item_id)}
             ListEmptyComponent={() => (
               <View style={{alignItems: 'center', marginTop: 20}}>
                 <Text style={{fontSize: 18, fontWeight: 'bold', color: 'gray'}}>
@@ -173,7 +215,7 @@ const VendorViewBranchItem = ({navigation, route}) => {
                       <Icon name="delete" size={30} color="red" />
                     </TouchableOpacity>
                     <TouchableOpacity>
-                      <Icon name="edit" size={34} color="black" />
+                      <Icon name="edit" size={28} color="darkgreen" />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -187,14 +229,28 @@ const VendorViewBranchItem = ({navigation, route}) => {
 };
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff', padding: 10},
-  header: {flexDirection: 'row', alignItems: 'center', marginBottom: 10},
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    backgroundColor: 'yellow',
+  },
   branchImage: {width: 150, height: 150, borderRadius: 10},
   branchDetails: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    width: '100%',
+    marginBottom: 10,
+    alignItems: 'center',
   },
-  branchName: {fontSize: 28, fontWeight: 'bold', color: 'black'},
+  branchName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+    flex: 5,
+    marginEnd: 10,
+  },
   ratingContainer: {flexDirection: 'row', alignItems: 'center'},
   ratingText: {fontSize: 14, color: '#777'},
   minOrder: {fontSize: 14, color: '#777'},
@@ -232,63 +288,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   productImage: {width: '100%', height: 100, borderRadius: 10},
-  productName: {fontSize: 16, fontWeight: 'bold', marginTop: 5},
-  productType: {fontSize: 14, color: '#777'},
+  productName: {fontSize: 16, fontWeight: 'bold', marginTop: 5, color: 'black'},
+  productType: {fontSize: 14, color: '#777', color: 'grey'},
   productBottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 5,
   },
-  productPrice: {fontSize: 16, fontWeight: 'bold'},
-  addButton: {backgroundColor: '#F8544B', padding: 8, borderRadius: 10},
+  productPrice: {fontSize: 16, fontWeight: 'bold', color: 'grey'},
 
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    width: '100%',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'flex-start',
-    width: '97%',
-  },
-  modalImage: {width: '100%', height: 200, borderRadius: 10},
-  modalTitle: {fontSize: 25, fontWeight: 'bold', marginTop: 10},
-  modalType: {color: 'black', marginTop: 5},
-  modalPrice: {fontSize: 18, fontWeight: 'bold', marginTop: 5},
-  addToCartButton: {
-    backgroundColor: '#F8544B',
-    paddingHorizontal: 50,
-    padding: 20,
-    borderRadius: 5,
-    marginTop: 10,
-    alignSelf: 'center',
-  },
-  addToCartText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    backgroundColor: '#F8544B',
-  },
-  closeButton: {marginTop: 10, padding: 10, alignSelf: 'center'},
-  closeText: {color: 'red', fontWeight: 'bold'},
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  quantityButton: {
-    backgroundColor: 'black',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    marginHorizontal: 10,
-  },
-  quantityText: {fontSize: 15},
   categoryButtons: {
     flexDirection: 'row',
     alignItems: 'center',

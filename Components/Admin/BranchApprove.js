@@ -1,72 +1,111 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, Image, FlatList, Pressable, StyleSheet} from 'react-native';
-import {Button} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import { Button } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 const BranchApprove = () => {
   const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  
   const navigation = useNavigation();
 
   useEffect(() => {
     fetchBranches();
-  }, [vendors]);
+  }, []);
 
   const fetchBranches = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`${url}/admin/branches/pendingBranches`);
       const data = await response.json();
       if (data) {
-        setVendors(data.pending_branches);
+        // Filter only pending branches
+        const pending = data.pending_branches.filter(
+          branch => branch.branch_approval_status !== 'approved'
+        );
+        setVendors(pending);
+        console.log('Filtered pending branches:', pending);
       }
     } catch (error) {
       console.error('Error fetching Branches:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+
     }
   };
 
-  const renderBranches = ({item}) =>
-    item.branch_approval_status !== 'approved' && (
-      <View style={styles.card}>
-        <Image source={{uri: item.branch_picture}} style={styles.image} />
-        <View style={styles.info}>
-          <Text style={styles.name}>{item.vendor_name}</Text>
-
-          <Text style={styles.detail}>{item.branch_description}</Text>
-
-          <Text style={styles.detail}>
-            Status: {item.branch_approval_status}
-          </Text>
-
-          <Button
-            mode="contained"
-            onPress={() =>
-              navigation.navigate('Branch Details', {vendor: item})
-            }
-            style={styles.button}>
-            Preview
-          </Button>
-        </View>
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchBranches();
+  };
+  const renderBranch = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.branch_picture }} style={styles.image} />
+      <View style={styles.info}>
+        <Text style={styles.name}>{item.vendor_name}</Text>
+        <Text style={styles.detail}>{item.branch_description}</Text>
+        <Text style={styles.detail}>
+          Status: {item.branch_approval_status}
+        </Text>
+        <Button
+          mode="contained"
+          onPress={() =>
+            navigation.navigate('Branch Details', { vendor: item })
+          }
+          style={styles.button}>
+          Preview
+        </Button>
       </View>
-    );
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={vendors}
-         keyExtractor={item => item.branch_id.toString()} 
-        renderItem={renderBranches}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#F8544B" style={styles.loader} />
+      ) : (
+        <FlatList
+          data={vendors}
+          keyExtractor={item => item.branch_id.toString()}
+          renderItem={renderBranch}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No branches pending approval.</Text>
+          }
+          refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={['#F8544B']}
+                        tintColor="#F8544B"
+                      />
+                    }
+        />
+      )}
     </View>
   );
 };
 
 export default BranchApprove;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
     backgroundColor: '#f8f8f8',
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   card: {
     flexDirection: 'row',
@@ -85,7 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: 10,
     backgroundColor: 'grey',
-    alignSelf:'center'
+    alignSelf: 'center',
   },
   info: {
     flex: 1,
@@ -103,12 +142,18 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 5,
     backgroundColor: '#F8544B',
-          borderRadius: 10,
-          width: 150,
-          height: 40,
-          justifyContent:'center',
-          alignItems:'center',
-          fontSize: 20,
-          fontWeight: 'bold',
+    borderRadius: 10,
+    width: 150,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
-});
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#888',
+    marginTop: 20,
+  },
+}); 

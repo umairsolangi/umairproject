@@ -3,7 +3,7 @@ import {View, Text, Image, Modal, StyleSheet, ScrollView} from 'react-native';
 import {Button, Checkbox} from 'react-native-paper';
 import {useRoute, useNavigation} from '@react-navigation/native';
 
-const VendorDetails = () => {
+const OrgVendorDetails = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const {vendor} = route.params;
@@ -28,7 +28,7 @@ const VendorDetails = () => {
   const fetchRejectedReasons = async () => {
     try {
       const response = await fetch(
-        `${url}/admin/vendors/${vendor.vendor_id}/rejection-reasons`,
+        `${url}/rejection-reasons/${vendor.organization_id}`,
       );
       if (!response.ok) {
         const errorData = await response.json();
@@ -36,7 +36,7 @@ const VendorDetails = () => {
         return;
       }
       const data = await response.json();
-      setRejectedReasons(data);
+      setRejectedReasons(data.rejection_reasons);
     } catch (error) {
       console.error('Network error fetching rejection reasons:', error);
     }
@@ -53,9 +53,9 @@ const VendorDetails = () => {
   const handleAccept = async () => {
     try {
       const response = await fetch(
-        `${url}/vendors/${vendor.vendor_id}/approve`,
+        `${url}/accept-vendor-request/${vendor.request_id}`,
         {
-          method: 'PUT',
+          method: 'POST',
           headers: {'Content-Type': 'application/json'},
         },
       );
@@ -74,7 +74,7 @@ const VendorDetails = () => {
 
     try {
       const response = await fetch(
-        `${url}/admin/vendors/${vendor.vendor_id}/reject`,
+        `${url}/reject-vendor-request/${vendor.request_id}`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -95,7 +95,7 @@ const VendorDetails = () => {
     setRejectedReasons(updated);
     try {
       const response = await fetch(
-        `${url}/admin/vendors/${vendor.vendor_id}/correct-rejection`,
+        `${url}/correct-rejection-reason/${reasonId}`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -112,12 +112,11 @@ const VendorDetails = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Vendor Profile */}
-      <Image source={{uri: vendor.profile_picture}} style={styles.image} />
-      <Text style={styles.name}>{vendor.name}</Text>
-      <Text style={styles.detail}>📧 {vendor.email}</Text>
-      <Text style={styles.detail}>📞 {vendor.phone_no}</Text>
+     
+      <Text style={styles.name}>{vendor.vendor_name}</Text>
+      <Text style={styles.detail}>📧 {vendor.vendor_email}</Text>
+      <Text style={styles.detail}>📞 {vendor.vendor_phone}</Text>
       <Text style={styles.detail}>🆔 CNIC: {vendor.cnic}</Text>
-      <Text style={styles.detail}>🏬 Type: {vendor.vendor_type}</Text>
       <Text style={styles.detail}>🔍 Status: {vendor.approval_status}</Text>
 
       {/* Buttons */}
@@ -178,7 +177,7 @@ const VendorDetails = () => {
   );
 };
 
-export default VendorDetails;
+export default OrgVendorDetails;
 
 const styles = StyleSheet.create({
   container: {

@@ -22,7 +22,7 @@ const CustomerShowOrderDetails = ({navigation, route}) => {
     (total, item) => total + parseFloat(item.price) * item.quantity,
     0,
   );
-  const serviceFee = 100;
+  const serviceFee = 0;
   const total = subtotal + serviceFee;
   const placeOrder = async () => {
     if (!orderInfo) {
@@ -96,7 +96,7 @@ const CustomerShowOrderDetails = ({navigation, route}) => {
         <Card.Content>
           {orderInfo.order_details.map((item, index) => (
             <View key={index} style={styles.orderItem}>
-              <Text style={styles.itemName}> {item.item_name}</Text>
+              <Text style={styles.itemName}>(1 X {item.quantity}) {item.item_name}</Text>
               <Text style={styles.itemPrice}>
                 Rs.{parseFloat(item.price) * item.quantity}
               </Text>
@@ -111,11 +111,11 @@ const CustomerShowOrderDetails = ({navigation, route}) => {
             }}></View>
 
           {/* Subtotal, Service Fee, Total */}
-          <View style={styles.orderItem}>
+        {/*   <View style={styles.orderItem}>
             <Text style={styles.summaryText}>Delivery Fee</Text>
             <Text style={styles.summaryText}>Rs.{serviceFee}</Text>
-          </View>
-          <View style={styles.orderItem}>
+          </View> */}
+         {/*  <View style={styles.orderItem}>
             <Text style={styles.summaryText}>Subtotal</Text>
             <Text style={styles.summaryText}>Rs.{subtotal}</Text>
           </View>
@@ -124,7 +124,7 @@ const CustomerShowOrderDetails = ({navigation, route}) => {
               width: '100%',
               height: 5,
               backgroundColor: '#F8544B',
-            }}></View>
+            }}></View> */}
 
           <View style={styles.orderItem}>
             <Text style={styles.totalText}>Total</Text>

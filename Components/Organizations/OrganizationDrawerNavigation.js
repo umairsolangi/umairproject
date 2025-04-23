@@ -1,34 +1,33 @@
 import {View, Text} from 'react-native';
 import React, {useState, useEffect} from 'react';
-import {createDrawerNavigator} from '@react-navigation/drawer';
-import VendorDashboar from './VendorDashboar';
-import VendorCustomDrawer from './VendorCustomDrawer';
-import VendorShops from './VendorShops';
-import {ActivityIndicator} from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import VednorShowOrders from './VednorShowOrders';
-import VendorAddOrganization from './VendorAddOrganization';
+
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import OrganizationDashboard from './OrganizationDashboard';
+import OrganizationAddDeliverBoy from './OrganizationAddDeliverBoy';
+import {ActivityIndicator} from 'react-native-paper';
+import OrganizationCustomDrawer from './OrganizationCustomDrawer';
+import OrgReceiveVendorReq from './OrgReceiveVendorReq';
 
 const Drawer = createDrawerNavigator();
 
-const VendorDrawerNavigation = ({navigation, route}) => {
-  const userdata = route.params.vendordata;
-
-  const [vendordetails, setvendordetails] = useState('');
+const OrganizationDrawerNavigation = ({navigation, route}) => {
+  const userdata = route.params.customerdata;
+  console.log('user data', userdata);
+  const [organizationdetails, setOrganizationdetails] = useState('');
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    searchVendorId();
+    getOrganizationDetails();
   }, []);
 
-  const searchVendorId = async () => {
+  const getOrganizationDetails = async () => {
     try {
-      const response = await fetch(`${url}/vendor/${userdata.id}`);
+      const response = await fetch(`${url}/organizations/${userdata.id}`);
 
       if (response.ok) {
         var data = await response.json();
         if (data) {
-          setvendordetails(data);
+          setOrganizationdetails(data);
         }
       } else {
         const errorText = await response.text();
@@ -48,7 +47,12 @@ const VendorDrawerNavigation = ({navigation, route}) => {
     </View>
   ) : (
     <Drawer.Navigator
-      drawerContent={props => <VendorCustomDrawer {...props} route={route} />}
+      drawerContent={props => (
+        <OrganizationCustomDrawer
+          {...props}
+          route={{params: {organizationdetails}}}
+        />
+      )}
       screenOptions={{
         drawerStyle: {backgroundColor: '#f7f7f7', width: 250},
         drawerLabelStyle: {fontSize: 15, fontWeight: 'bold', color: '#5c5959'},
@@ -58,8 +62,7 @@ const VendorDrawerNavigation = ({navigation, route}) => {
       }}>
       <Drawer.Screen
         name="Dashboard"
-        component={VendorDashboar}
-        initialParams={{vendordetails}}
+        component={OrganizationDashboard}
         options={{
           drawerIcon: ({color, size}) => (
             <MaterialCommunityIcons
@@ -71,23 +74,27 @@ const VendorDrawerNavigation = ({navigation, route}) => {
         }}
       />
       <Drawer.Screen
-        name="Shops"
-        component={VendorShops}
-        initialParams={{vendordetails}}
+        name="Add Riders"
+        component={OrganizationAddDeliverBoy}
+        initialParams={{organizationdetails}}
         options={{
           drawerIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="store" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="account-multiple-plus"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
       <Drawer.Screen
-        name="Delivery Partners"
-        component={VendorAddOrganization}
-        initialParams={{vendordetails}}
+        name="Approve Vendors"
+        component={OrgReceiveVendorReq}
+        initialParams={{organizationdetails}}
         options={{
           drawerIcon: ({color, size}) => (
             <MaterialCommunityIcons
-              name="bike-fast"
+              name="account-check"
               color={color}
               size={size}
             />
@@ -98,4 +105,4 @@ const VendorDrawerNavigation = ({navigation, route}) => {
   );
 };
 
-export default VendorDrawerNavigation;
+export default OrganizationDrawerNavigation;

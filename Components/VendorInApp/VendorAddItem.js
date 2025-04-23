@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,18 @@ import {
   StyleSheet,
   Alert,
   Pressable,
+  Modal,
 } from 'react-native';
-import {
-  TextInput,
-  Button,
-  RadioButton,
-} from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import {TextInput, Button, RadioButton} from 'react-native-paper';
+import {Picker} from '@react-native-picker/picker';
 import * as ImagePicker from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const VendorAddItem = ({ navigation, route }) => {
+const VendorAddItem = ({navigation, route}) => {
   const branchData = route.params.item;
   const shopCategoryId = route.params.shopcatagory;
   const shopdetails = route.params.shopdetails;
-  
+
   const [shopCategory, setShopCategory] = useState(shopCategoryId || '');
   const [itemCategories, setItemCategories] = useState([]);
   const [itemCategory, setItemCategory] = useState('');
@@ -37,6 +34,7 @@ const VendorAddItem = ({ navigation, route }) => {
   const [price, setPrice] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [itemPicture, setItemPicture] = useState(null);
+  const [ImagemodalVisible, setImageModalVisible] = useState(false);
 
   useEffect(() => {
     if (shopCategory) {
@@ -70,7 +68,7 @@ const VendorAddItem = ({ navigation, route }) => {
   const handleAttributeChange = (key, value) => {
     setSelectedAttributes(prev => {
       const existingIndex = prev.findIndex(attr => attr.key === key);
-  
+
       if (existingIndex !== -1) {
         // Update existing attribute
         const updatedAttributes = [...prev];
@@ -78,20 +76,25 @@ const VendorAddItem = ({ navigation, route }) => {
         return updatedAttributes;
       } else {
         // Add new attribute
-        return [...prev, { key, value }];
+        return [...prev, {key, value}];
       }
     });
   };
 
-  const handleImagePick = async () => {
-    try {
-      const result = await ImagePicker.launchCamera({ mediaType: 'photo' });
-      if (result.assets && result.assets[0]) {
-        setItemPicture(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.error('Unexpected error picking image:', error);
+  const handleImageSelection = async type => {
+    const options = {mediaType: 'photo', quality: 1};
+    let result;
+
+    if (type === 'camera') {
+      result = await ImagePicker.launchCamera(options);
+    } else {
+      result = await ImagePicker.launchImageLibrary(options);
     }
+
+    if (!result.didCancel && result.assets?.length > 0) {
+      setItemPicture(result.assets[0].uri);
+    }
+    setImageModalVisible(false);
   };
 
   const handleSubmit = async () => {
@@ -120,7 +123,7 @@ const VendorAddItem = ({ navigation, route }) => {
         });
       }
 
-      formData.append("attributes", JSON.stringify(selectedAttributes));
+      formData.append('attributes', JSON.stringify(selectedAttributes));
 
       const response = await fetch(
         `${url}/vendor/${shopdetails.vendors_ID}/shop/${shopdetails.id}/branch/${branchData.branch_id}/item`,
@@ -148,9 +151,11 @@ const VendorAddItem = ({ navigation, route }) => {
   };
 
   return (
+    <ScrollView>
     <ScrollView style={styles.container}>
-      {/* Image Upload */}
-      <Pressable onPress={handleImagePick} style={styles.imageUploadContainer}>
+      <Pressable
+        onPress={() => setImageModalVisible(true)}
+        style={styles.imageUploadContainer}>
         {itemPicture ? (
           <Image source={{uri: itemPicture}} style={styles.image} />
         ) : (
@@ -160,7 +165,6 @@ const VendorAddItem = ({ navigation, route }) => {
           </View>
         )}
       </Pressable>
-      {/* Item Name */}
       <TextInput
         label="Item Name"
         mode="outlined"
@@ -169,7 +173,6 @@ const VendorAddItem = ({ navigation, route }) => {
         style={styles.input}
       />
 
-      {/* Price */}
       <TextInput
         label="Price"
         mode="outlined"
@@ -178,8 +181,8 @@ const VendorAddItem = ({ navigation, route }) => {
         onChangeText={setPrice}
         style={styles.input}
       />
-   {/* Description */}
-   <TextInput
+      {/* Description */}
+      <TextInput
         label="Description"
         mode="outlined"
         multiline
@@ -187,26 +190,28 @@ const VendorAddItem = ({ navigation, route }) => {
         onChangeText={setDescription}
         style={styles.input}
       />
-        {/* Additional Info */}
-        <TextInput
+      {/* Additional Info */}
+      <TextInput
         label="Additional Info"
         mode="outlined"
         value={additionalInfo}
         onChangeText={setAdditionalInfo}
         style={styles.input}
       />
-      {/* Select Item Category */}
-      <Text style={styles.label}>Select Item Category</Text>
-      <Picker
-        selectedValue={itemCategory}
-        onValueChange={setItemCategory}
-        style={styles.picker}>
-        <Picker.Item label="Select Category" value="" />
-        {itemCategories.map(cat => (
-          <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
-        ))}
-      </Picker>
-         {/* Time Sensitive */}
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={itemCategory}
+          onValueChange={setItemCategory}
+          style={styles.picker}
+          dropdownIconColor="#F8544B" // changes the dropdown arrow color (Android)
+        >
+          <Picker.Item label="Select Category" value="" />
+          {itemCategories.map(cat => (
+            <Picker.Item key={cat.id} label={cat.name} value={cat.id} />
+          ))}
+        </Picker>
+      </View>
+
       <Text style={styles.label}>Is Time Sensitive?</Text>
       <View style={styles.radioRow}>
         <RadioButton
@@ -215,6 +220,7 @@ const VendorAddItem = ({ navigation, route }) => {
           onPress={() => setTimesensitive('Yes')}
           color="#F8544B"
         />
+
         <Text style={styles.radioLabel}>Yes</Text>
         <RadioButton
           value="No"
@@ -224,41 +230,43 @@ const VendorAddItem = ({ navigation, route }) => {
         />
         <Text style={styles.radioLabel}>No</Text>
       </View>
-     {/* Preparation Time */}
-    {timesensitive=='Yes' && (
-     <TextInput
-        label="Preparation Time (minutes)"
-        mode="outlined"
-        keyboardType="numeric"
-        value={preparationTime}
-        onChangeText={setPreparationTime}
-        style={styles.input}
-      />
-    )
-      }
-     
-{/* Attributes */}
+      {/* Preparation Time */}
+      {timesensitive == 'Yes' && (
+        <TextInput
+          label="Preparation Time (minutes)"
+          mode="outlined"
+          keyboardType="numeric"
+          value={preparationTime}
+          onChangeText={setPreparationTime}
+          style={styles.input}
+        />
+      )}
+
 {Object.keys(attributes).length > 0 && (
   <>
-    <Text style={styles.label}>Select Attributes</Text>
     {Object.entries(attributes).map(([key, values]) => {
-      const selectedValue = selectedAttributes.find(attr => attr.key === key)?.value || '';
+      const selectedValue =
+        selectedAttributes.find(attr => attr.key === key)?.value || '';
 
       return (
-        <Picker
-          key={key}
-          selectedValue={selectedValue}
-          onValueChange={value => handleAttributeChange(key, value)}
-          style={styles.picker}>
-          <Picker.Item label={`Select ${key}`} value="" />
-          {values.map((value, index) => (
-            <Picker.Item key={index} label={value} value={value} />
-          ))}
-        </Picker>
+        <View key={key} style={styles.pickerContainer}>
+          <Picker
+            selectedValue={selectedValue}
+            onValueChange={value => handleAttributeChange(key, value)}
+            style={styles.picker}
+            dropdownIconColor="#F8544B"
+          >
+            <Picker.Item label={`Select ${key}`} value="" />
+            {values.map((value, index) => (
+              <Picker.Item key={index} label={value} value={value} />
+            ))}
+          </Picker>
+        </View>
       );
     })}
   </>
 )}
+
       {/* Variations */}
       {variations.length > 0 && (
         <>
@@ -276,28 +284,98 @@ const VendorAddItem = ({ navigation, route }) => {
         </>
       )}
 
-
       {/* Submit Button */}
-      <Button mode="contained" onPress={handleSubmit} style={styles.submitButton}>
-        Add Item
-      </Button>
+      <Button
+  mode="contained"
+  onPress={handleSubmit}
+  style={styles.submitButton}
+  contentStyle={styles.submitButtonContent}
+  labelStyle={styles.submitButtonLabel}
+>
+  Add Item
+</Button>
+
+      <Modal
+        transparent={true}
+        visible={ImagemodalVisible}
+        animationType="slide">
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'flex-end',
+          }}
+          onPress={() => setImageModalVisible(false)}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>
+              Select Image
+            </Text>
+
+            <Button
+              mode="contained"
+              icon="camera"
+              onPress={() => handleImageSelection('camera')}
+              style={{width: '70%', marginBottom: 10}}>
+              Take Photo
+            </Button>
+
+            <Button
+              mode="contained"
+              icon="image"
+              onPress={() => handleImageSelection('gallery')}
+              style={{width: '70%', marginBottom: 10}}>
+              Choose from Gallery
+            </Button>
+
+            <Button mode="text" onPress={() => setImageModalVisible(false)}>
+              Cancel
+            </Button>
+          </View>
+        </Pressable>
+      </Modal>
+    </ScrollView>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {padding: 20, marginBottom: 20},
-  header: {alignItems: 'center', marginBottom: 10},
+  container: {padding: 20, },
   branchName: {fontSize: 20, fontWeight: 'bold', marginTop: 10},
-  input: {marginBottom: 10},
-  picker: {marginVertical: 10},
-  submitButton: { backgroundColor: '#F8544B', borderRadius: 10, marginTop: 10,marginBottom:20 },
+  input: {marginBottom: 5},
+  picker: {marginVertical: 5},
+  submitButton: {
+    backgroundColor: '#F8544B',
+    borderRadius: 12,
+    marginVertical: 12,
+    alignSelf: 'center',
+    width: 290,
+    elevation: 3, // adds subtle shadow on Android
+  },
+  submitButtonContent: {
+    height: 48,
+    justifyContent: 'center',
+  },
+  submitButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  
   radioContainer: {
     flexDirection: 'row',
-  }, imageUploadContainer: {
+    alignItems:'center'
+  },
+  imageUploadContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#e0dfdc',
     borderRadius: 10,
     height: 140,
     marginBottom: 15,
@@ -306,14 +384,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 10,
-  }, uploadIconContainer: {
+  },
+  uploadIconContainer: {
     alignItems: 'center',
   },
   uploadText: {
     fontSize: 14,
     color: 'gray',
     marginTop: 5,
-  }, radioRow: {
+  },
+  radioRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
@@ -323,10 +403,25 @@ const styles = StyleSheet.create({
     color: '#000',
     marginRight: 20,
   },
-  label:{
-    fontSize:20,
-    fontWeight:'bold'
-  }
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'black',
+    marginLeft:4
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    marginVertical: 10,
+  },
+  picker: {
+    height: 50,
+    color: '#333',
+    paddingHorizontal: 10,
+  },
 });
 
 export default VendorAddItem;

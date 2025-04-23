@@ -15,7 +15,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, {Marker} from 'react-native-maps';
 import {SelectList} from 'react-native-dropdown-select-list';
 
-const CustomerSignup = ({navigation}) => {
+const OrganizationSignup = ({navigation,route}) => {
+const {role}=route.params
+console.log(role)
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone_no, setPhoneNo] = useState('');
@@ -129,7 +131,7 @@ const CustomerSignup = ({navigation}) => {
         });
       }
 
-      const response = await fetch(`${url}/signup`, {
+      const response = await fetch(`${url}/organization/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -351,7 +353,7 @@ const CustomerSignup = ({navigation}) => {
   );
 };
 
-export default CustomerSignup;
+export default OrganizationSignup;
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,

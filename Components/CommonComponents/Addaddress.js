@@ -5,7 +5,7 @@ import MapView, { Marker } from "react-native-maps";
 import { Button, TextInput } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const AddnewAddress = ({ navigation,route }) => {
+const AddnewAddress = ({AddLocation,addressobj}) => {
 
   const [region, setRegion] = useState({
     latitude: 33.6844, // Default location (Karachi)
@@ -14,13 +14,7 @@ const AddnewAddress = ({ navigation,route }) => {
     longitudeDelta: 0.1,
   });
 
-  const [address, setAddress] = useState({
-    street: "",
-    city: "",
-    zip_code: "",
-    country: "",
-    address_type: "Home",
-  });
+  const [address, setAddress] = useState(addressobj);
 
   const addressTypes = ["Home", "Work", "Other"];
 
@@ -37,12 +31,22 @@ const AddnewAddress = ({ navigation,route }) => {
 
       const shopData = {
         ...address,
+
         latitude: region.latitude,
         longitude: region.longitude,
       }
-      console.log(shopData)
+      AddLocation(shopData)
   };
+  const handleCancelAddress = async () => {
+  
 
+      const shopData = {
+        ...address,
+        latitude: region.latitude,
+        longitude: region.longitude,
+      }
+      AddLocation(shopData)
+  };
   return (
     <ScrollView style={styles.container}>
       
@@ -113,6 +117,9 @@ const AddnewAddress = ({ navigation,route }) => {
         {/* Save Button */}
         <Button mode="contained" onPress={handleSaveAddress} style={styles.saveButton}>
           Save location
+        </Button>
+        <Button mode="text" textColor="black" onPress={handleCancelAddress} style={{marginTop:10}}>
+          Cancel
         </Button>
       </View>
     </ScrollView>
