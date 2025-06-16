@@ -6,15 +6,14 @@ import AdminDashboard from './AdminDashboard';
 import VendorApprove from './VendorApprove';
 import AdminCustomDrawer from './AdminCustomDrawer';
 import BranchApprove from './BranchApprove';
+import AdminShowAllApiVendors from './AdminShowAllApiVendors';
 
 const Drawer = createDrawerNavigator();
 
 const AdminDrawerNavigation = ({navigation, route}) => {
   const admindata = route.params.Admindata;
 
-  
   return (
- 
     <Drawer.Navigator
       drawerContent={props => <AdminCustomDrawer {...props} route={route} />}
       screenOptions={{
@@ -31,7 +30,11 @@ const AdminDrawerNavigation = ({navigation, route}) => {
         options={{
           drawerLabel: 'Dashboard',
           drawerIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="view-dashboard"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
@@ -41,23 +44,45 @@ const AdminDrawerNavigation = ({navigation, route}) => {
         options={{
           drawerLabel: 'Approve Vendors ',
           drawerIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="account-multiple-check" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="account-multiple-check"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
 
-<Drawer.Screen
+      <Drawer.Screen
         name="Approve Branches"
         component={BranchApprove}
         options={{
           drawerLabel: 'Approve Branches',
           drawerIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="store-check" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="store-check"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+
+       <Drawer.Screen
+        name="Api Integration"
+        component={AdminShowAllApiVendors}
+        options={{
+          drawerLabel: 'Api Integration',
+          drawerIcon: ({color, size}) => (
+            <MaterialCommunityIcons
+              name="cloud-sync"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
     </Drawer.Navigator>
-
   );
 };
 

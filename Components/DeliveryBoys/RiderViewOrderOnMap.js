@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, PermissionsAndroid, Platform, Text } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import React, {useEffect, useState} from 'react';
+import {View, PermissionsAndroid, Platform, Text} from 'react-native';
+import MapView, {Marker, Polyline} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { getDistance } from 'geolib';
-import { ActivityIndicator } from 'react-native-paper';
+import {getDistance} from 'geolib';
+import {ActivityIndicator} from 'react-native-paper';
 
 const ratePerKm = 20;
 
-const RiderViewOrderOnMap = ({ route }) => {
-  const { order } = route.params;
+const RiderViewOrderOnMap = ({route}) => {
+  const {order} = route.params;
   const [riderLocation, setRiderLocation] = useState(null);
-  const [deliveryInfo, setDeliveryInfo] = useState({ km: '0', charges: '0' });
+  const [deliveryInfo, setDeliveryInfo] = useState({km: '0', charges: '0'});
 
   useEffect(() => {
     requestLocationPermission();
@@ -19,7 +19,7 @@ const RiderViewOrderOnMap = ({ route }) => {
   useEffect(() => {
     if (riderLocation) {
       calculateDistanceAndCharges();
-      console.log('rider location',riderLocation)
+      console.log('rider location', riderLocation);
     }
   }, [riderLocation]);
 
@@ -40,7 +40,7 @@ const RiderViewOrderOnMap = ({ route }) => {
           console.log('Location permission denied');
         }
       } else {
-        getCurrentLocation(); // iOS
+        getCurrentLocation();
       }
     } catch (error) {
       console.error('Permission error:', error.message);
@@ -57,15 +57,14 @@ const RiderViewOrderOnMap = ({ route }) => {
       },
       error => {
         console.log('Location error:', error.message);
-        // fallback location
-        setRiderLocation({ latitude: 33.6844, longitude: 73.0479 });
+        setRiderLocation({latitude: 33.6844, longitude: 73.0479});
       },
       {
         enableHighAccuracy: false,
         timeout: 20000,
         maximumAge: 10000,
         distanceFilter: 10,
-      }
+      },
     );
   };
 
@@ -94,11 +93,44 @@ const RiderViewOrderOnMap = ({ route }) => {
     }
   };
 
+  const handleMapPress = async e => {
+    const {latitude, longitude} = e.nativeEvent.coordinate;
+    const coords = {
+      latitude: latitude,
+      longitude: longitude,
+    };
+    setRiderLocation(coords);
+    console.log('curren Postion', latitude, longitude);
+    if (
+      order.status == 'assigned' ||
+      order.status == 'picked_up' ||
+      order.status == 'handover_confirmed' ||
+      order.status == 'in_transit'
+    ) {
+      try {
+        const response = await fetch(
+          `${url}/deliveryboy/order/${order.suborder_id}/location`,
+          {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(coords),
+          },
+        );
+
+        if (!response.ok) {
+          console.log('Failed to update location:', response.statusText);
+        }
+      } catch (error) {
+        console.log('Live tracking error:', error.message);
+      }
+    }
+  };
+
   if (!riderLocation) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color="#F8544B" />
-        <Text style={{ marginTop: 10, fontWeight: 'bold' ,color:"black"}}>
+        <Text style={{marginTop: 10, fontWeight: 'bold', color: 'black'}}>
           Fetching location...
         </Text>
       </View>
@@ -106,24 +138,22 @@ const RiderViewOrderOnMap = ({ route }) => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <MapView
-        style={{ flex: 1 }}
+        onPress={handleMapPress}
+        style={{flex: 1}}
         initialRegion={{
           latitude: riderLocation.latitude,
           longitude: riderLocation.longitude,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
-        }}
-      >
-        {/* Rider Marker */}
+        }}>
         <Marker
           coordinate={riderLocation}
           pinColor="blue"
           title="Your Location"
         />
 
-        {/* Pickup Marker */}
         <Marker
           coordinate={pickupCoords}
           title={`${order.shop.name} - ${order.shop.branch.name}`}
@@ -131,23 +161,14 @@ const RiderViewOrderOnMap = ({ route }) => {
           pinColor="red"
         />
 
-        {/* Delivery Marker */}
         <Marker
           coordinate={deliveryCoords}
           title="Customer"
           description="Delivery Location"
           pinColor="green"
         />
-
-        {/* Route Polyline */}
-        <Polyline
-          coordinates={[pickupCoords, deliveryCoords]}
-          strokeColor="#F8544B"
-          strokeWidth={4}
-        />
       </MapView>
 
-      {/* Bottom Info Panel */}
       <View
         style={{
           position: 'absolute',
@@ -159,15 +180,14 @@ const RiderViewOrderOnMap = ({ route }) => {
           borderRadius: 10,
           shadowColor: '#000',
           shadowOpacity: 0.1,
-          shadowOffset: { width: 0, height: 2 },
+          shadowOffset: {width: 0, height: 2},
           shadowRadius: 5,
           elevation: 4,
-        }}
-      >
-        <Text style={{ fontWeight: 'bold', color: 'black', fontSize: 16 }}>
+        }}>
+        <Text style={{fontWeight: 'bold', color: 'black', fontSize: 16}}>
           Distance: {deliveryInfo.km} km
         </Text>
-        <Text style={{ fontWeight: 'bold', color: 'black', fontSize: 16 }}>
+        <Text style={{fontWeight: 'bold', color: 'black', fontSize: 16}}>
           Delivery Charges: Rs {deliveryInfo.charges}
         </Text>
       </View>

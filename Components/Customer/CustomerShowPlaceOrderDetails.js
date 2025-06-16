@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const CustomerShowPlaceOrderDetails = ({navigation, route}) => {
   const {orderDetails} = route.params;
+
   const [orders, setOrders] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');

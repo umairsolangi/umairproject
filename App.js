@@ -42,6 +42,13 @@ import RiderOrders from './Components/DeliveryBoys/RiderOrders';
 import RiderViewOrderOnMap from './Components/DeliveryBoys/RiderViewOrderOnMap';
 import RiderViewAcceptedOrder from './Components/DeliveryBoys/RiderViewAcceptedOrder';
 import CustomerTrackOrderMap from './Components/Customer/CustomerTrackOrderMap';
+import AdminViewVendorsShop from './Components/Admin/AdminViewVendorsShop';
+import AdminViewVendorBranches from './Components/Admin/AdminViewVendorBranches';
+import Adminintegrationform from './Components/Admin/Adminintegrationform';
+import AdminIntegrationOption from './Components/Admin/AdminIntegrationOption';
+import AdminAddApiEndPoints from './Components/Admin/AdminAddApiEndPoints';
+import AdminAddMapping from './Components/Admin/AdminAddMapping';
+import AdminAddVariables from './Components/Admin/AdminAddVariables';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -113,6 +120,18 @@ const App = () => {
               <Stack.Screen name="Vendor Approval" component={VendorApprove} />
               <Stack.Screen name="Vendor Details" component={VendorDetails} />
               <Stack.Screen name="Branch Details" component={BranchDetails} />
+              <Stack.Screen name="All Shops" component={AdminViewVendorsShop}/>
+              <Stack.Screen name="All Branches" component={AdminViewVendorBranches}/>
+              <Stack.Screen name="API Form" component={Adminintegrationform}/>
+              <Stack.Screen name="API Options" component={AdminIntegrationOption}/>
+              <Stack.Screen name="Add Methods" component={AdminAddApiEndPoints}/>
+              <Stack.Screen name="Add Mapping" component={AdminAddMapping}/>
+              <Stack.Screen name="Variables" component={AdminAddVariables}/>
+
+
+
+
+
             </Stack.Navigator>
           </NavigationContainer>
         </CartProvider>

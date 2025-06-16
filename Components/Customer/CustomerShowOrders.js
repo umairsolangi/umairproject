@@ -46,6 +46,7 @@ const CustomerShowOrders = ({navigation, route}) => {
        
 
         setOrders(data.data);
+
         setFilteredItems(data.data);
       }
     } catch (error) {
@@ -111,7 +112,7 @@ const CustomerShowOrders = ({navigation, route}) => {
         </View>
       ) : (
         <>
-          <View style={styles.categoryContainer}>
+          {/* <View style={styles.categoryContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.categoryButtons}>
                 {categories.map(category => (
@@ -133,7 +134,7 @@ const CustomerShowOrders = ({navigation, route}) => {
                 ))}
               </View>
             </ScrollView>
-          </View>
+          </View> */}
 
           <FlatList
             data={selectedCategory !== '' ? filteredItems : orders}

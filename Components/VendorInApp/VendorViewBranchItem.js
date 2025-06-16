@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const VendorViewBranchItem = ({navigation, route}) => {
   const {branchData, ShopDetails, vendordata} = route.params;
-  const [branchItem, setBranchItem] = useState('');
+  const [branchItem, setBranchItem] = useState([]);
   const [Allcatagories, setAllcatagories] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +178,6 @@ const VendorViewBranchItem = ({navigation, route}) => {
             </ScrollView>
           </View>
 
-          {/* Products */}
           <FlatList
             data={
               filteredItems.length > 0

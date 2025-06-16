@@ -126,6 +126,7 @@ const RiderDrawerNavigation = ({navigation, route}) => {
       <Drawer.Screen
         name="Dashboard"
         component={RiderDashboard}
+        initialParams={{Userdetails}}
         options={{
           drawerIcon: ({color, size}) => (
             <MaterialCommunityIcons

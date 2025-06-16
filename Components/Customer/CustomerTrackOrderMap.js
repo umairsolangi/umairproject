@@ -7,33 +7,70 @@ const CustomerTrackOrderMap = ({route}) => {
   const [loading, setLoading] = useState(true);
   const [riderTrail, setRiderTrail] = useState([]);
   const [latestLocation, setLatestLocation] = useState(null);
+  const [dropLocation, setDropLocation] = useState(null);
 
-  useEffect(() => {
+
+ useEffect(() => {
+  fetchOrdersLiveStatus();
+
+  const interval = setInterval(() => {
     fetchOrdersLiveStatus();
-  }, []);
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, []);
 
   const fetchOrdersLiveStatus = async () => {
     try {
-      const locationRes = await fetch(`${url}/suborders/${order.suborder_id}/live-tracking`);
+      const locationRes = await fetch(
+        `${url}/suborders/${order.suborder_id}/live-tracking`
+      );
       const locationData = await locationRes.json();
 
-      if (locationData && locationData.data && Array.isArray(locationData.data)) {
+      const routeRes = await fetch(
+        `${url}/suborders/${order.suborder_id}/route-info`
+      );
+      const routeData = await routeRes.json();
+
+      if (
+        locationData?.data &&
+        Array.isArray(locationData.data) &&
+        locationData.data.length > 0
+      ) {
         const trail = locationData.data.map(loc => ({
           latitude: parseFloat(loc.latitude),
           longitude: parseFloat(loc.longitude),
         }));
 
         setRiderTrail(trail);
-        setLatestLocation(trail[trail.length - 1]); // latest one
+        setLatestLocation(trail[trail.length - 1] || null);
       } else {
-        console.warn('Invalid tracking data format');
+        console.warn('No location data available for this suborder.');
+      }
+
+      if (routeData?.data) {
+        setDropLocation(routeData.data);
       }
     } catch (error) {
-      console.error('Please Try Again:', error);
+      console.error('Error fetching tracking info:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const pickupCoords = dropLocation?.pickup_location
+    ? {
+        latitude: parseFloat(dropLocation.pickup_location.latitude),
+        longitude: parseFloat(dropLocation.pickup_location.longitude),
+      }
+    : null;
+
+  const deliveryCoords = dropLocation?.drop_location
+    ? {
+        latitude: parseFloat(dropLocation.drop_location.latitude),
+        longitude: parseFloat(dropLocation.drop_location.longitude),
+      }
+    : null;
 
   if (loading || !latestLocation) {
     return (
@@ -57,24 +94,41 @@ const CustomerTrackOrderMap = ({route}) => {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}>
-        
-        {/* Rider Marker at latest position */}
+        {/* Rider's Latest Location Marker */}
         <Marker
           coordinate={latestLocation}
           title="Rider"
-          description="Live location"
-          pinColor="red"
+          description="Live Location"
+          image={require('../../Assets/Images/ridericon.png')}
         />
 
-        {/* Rider Trail Polyline */}
-        <Polyline
-          coordinates={riderTrail}
-          strokeColor="red"
-          strokeWidth={4}
-        />
+        {/* Pickup Marker */}
+        {pickupCoords && (
+          <Marker
+            coordinate={pickupCoords}
+            title="Vendor Location"
+            description="Pickup Location"
+            pinColor="red"
+          />
+        )}
+
+        {/* Delivery Marker */}
+        {deliveryCoords && (
+          <Marker
+            coordinate={deliveryCoords}
+            title="Customer"
+            description="Delivery Location"
+            pinColor="green"
+          />
+        )}
+
+        {/* Rider's Trail Polyline */}
+        {riderTrail.length > 1 && (
+          <Polyline coordinates={riderTrail} strokeColor="red" strokeWidth={4} />
+        )}
       </MapView>
 
-      {/* Info Panel */}
+      {/* Rider Info Panel */}
       <View
         style={{
           position: 'absolute',
@@ -93,8 +147,12 @@ const CustomerTrackOrderMap = ({route}) => {
         <Text style={{fontWeight: 'bold', color: 'black', fontSize: 16}}>
           Rider Latest Location:
         </Text>
-        <Text style={{color:'black'}}>Latitude: {latestLocation.latitude}</Text>
-        <Text style={{color:'black'}}>Longitude: {latestLocation.longitude}</Text>
+        <Text style={{color: 'black'}}>
+          Latitude: {latestLocation?.latitude ?? 'N/A'}
+        </Text>
+        <Text style={{color: 'black'}}>
+          Longitude: {latestLocation?.longitude ?? 'N/A'}
+        </Text>
       </View>
     </View>
   );

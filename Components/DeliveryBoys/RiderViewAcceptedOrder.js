@@ -13,7 +13,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {getDistance} from 'geolib';
 import Geolocation from '@react-native-community/geolocation';
 
-
 const RiderViewAcceptedOrder = ({navigation, route}) => {
   const {Userdetails} = route.params;
   const [pickeduporders, setPickedUpOrders] = useState([]);
@@ -23,21 +22,18 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
   const [refreshing, setRefreshing] = useState(false);
   const trackingId = useRef(null);
   const ratePerKm = 20;
-
+console.log('Filetpply')
   const categories = [
     'All',
     'Accepted Orders',
     'Picked_UP Orders',
     'In_Transit Orders',
     'Delivered Orders',
-    'Confirmed Payment'
+    'Confirmed Payment',
   ];
 
   useEffect(() => {
     fetchOrders();
-   
-      
-   
   }, []);
 
   const calculateCharges = (pickup, delivery) => {
@@ -64,7 +60,7 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
       const data = await response.json();
       if (data?.data) {
         setPickedUpOrders(data.data);
-        setFilteredItems(data.data); // default to all
+        setFilteredItems(data.data)        
       }
     } catch (error) {
       console.error('Error fetching orders:', error.message);
@@ -93,52 +89,62 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
       case 'In_Transit Orders':
         status = 'in_transit';
         break;
-        case 'Delivered Orders':
-          status = 'delivered';
-          break;        
-          case 'Confirmed Payment':
-          status = 'confirmed_by_deliveryboy';
-          break;        
+      case 'Delivered Orders':
+        status = 'delivered';
+        break;
+      case 'Confirmed Payment':
+        status = 'confirmed_by_deliveryboy';
+        break;
       default:
         status = '';
     }
 
     if (status === '') {
       setFilteredItems(pickeduporders);
-    }
-    else if(status === 'confirmed_by_deliveryboy'){
-      const filtered = pickeduporders.filter(order => order.payment_status === status );
+    } else if (status === 'confirmed_by_deliveryboy') {
+      const filtered = pickeduporders.filter(
+        order => order.payment_status === status,
+      );
+      setFilteredItems(filtered);
+    } else if (status === 'delivered') {
+      const filtered = pickeduporders.filter(
+        order => order.payment_status === 'confirmed_by_customer' && order.status == 'delivered' 
+      );
       setFilteredItems(filtered);
     }
-    else {
-      const filtered = pickeduporders.filter(order => order.status === status || order.payment_status === 'confirmed_by_customer' );
+     else {
+      const filtered = pickeduporders.filter(
+        order =>
+          order.status === status ,
+      );
       setFilteredItems(filtered);
     }
   };
 
-  const handleMarkPickup = async (order) => {
+  const handleMarkPickup = async order => {
     Geolocation.getCurrentPosition(
       async position => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-  
+
         try {
           const response = await fetch(
             `${url}/deliveryboy/order/${order.suborder_id}/pickup`,
             {
               method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
                 latitude: latitude,
                 longitude: longitude,
               }),
-            }
+            },
           );
-  
+
           if (response.ok) {
             Alert.alert('Success', 'Order Picked UP Successfully');
-            fetchOrders();
-            startLiveLocationTracking(order.suborder_id);
+
+            /*             startLiveLocationTracking(order.suborder_id);
+             */
           } else {
             Alert.alert('Error', 'Vendor Not Confirmed Pickup');
           }
@@ -154,42 +160,38 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
         enableHighAccuracy: false,
         timeout: 15000,
         maximumAge: 10000,
-      }
+      },
     );
   };
-  
 
-  const delivereyBoyReachedDes = async (order) => {
+  const delivereyBoyReachedDes = async order => {
     Geolocation.getCurrentPosition(
       async position => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-  
+
         try {
           const response = await fetch(
             `${url}/deliveryboy/reach-destination/${Userdetails.delivery_boy_id}/${order.suborder_id}`,
             {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
                 latitude: latitude,
                 longitude: longitude,
               }),
-            }
+            },
           );
-  
+
           const data = await response.json();
           if (response.ok) {
             Alert.alert('Success', 'Order marked as delivered');
-            fetchOrders();
-  
             if (trackingId.current !== null) {
-              Geolocation.clearWatch(trackingId.current );
+              Geolocation.clearWatch(trackingId.current);
 
               trackingId.current = null;
               console.log('Live tracking stopped.');
             }
-  
           } else {
             Alert.alert('Error', 'Vendor Not Confirmed Pickup');
           }
@@ -205,14 +207,11 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
         enableHighAccuracy: false,
         timeout: 15000,
         maximumAge: 10000,
-      }
+      },
     );
   };
-  
 
-
-
-  const startLiveLocationTracking = (suborderId) => {
+  /*   const startLiveLocationTracking = (suborderId) => {
     trackingId.current  = Geolocation.watchPosition(
       position => {
         const coords = {
@@ -237,34 +236,28 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
         fastestInterval: 3000,
       }
     );
-  };
+  }; */
 
-
-
-  const confirmorderPayment = async (order) => {
+  const confirmorderPayment = async order => {
     try {
       const response = await fetch(
         `${url}/deliveryboy/confirm-payment/${order.suborder_id}`,
         {
           method: 'post',
-          headers: { 'Content-Type': 'application/json' },
-        }
+          headers: {'Content-Type': 'application/json'},
+        },
       );
 
       const data = await response.json();
       if (response.ok) {
         Alert.alert('Success', 'Payment Confirm Succeccfully');
-        fetchOrders();
-
       } else {
         Alert.alert('Error', 'Customer Not Confirmed Payment');
       }
     } catch (error) {
       console.error('Error marking as delivered:', error.message);
     }
-
-};
-
+  };
 
   const renderOrderCard = ({item: order}) => {
     const pickup = order.shop.branch.pickup_location;
@@ -309,7 +302,7 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
             />
             <Text style={styles.label}>Deliver</Text>
           </View>
-          <View style={{flex:1}}>
+          <View style={{flex: 1}}>
             <Text style={styles.boldText}>{order.customer.name}</Text>
             <Text style={styles.phone}>{order.customer.phone}</Text>
             <Text style={styles.location}>
@@ -332,11 +325,10 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
               <Text style={styles.btnText}>Picked Order</Text>
             </TouchableOpacity>
           )}
-          {(order.status == 'picked_up' || order.status=='in_transit') && (
+          {(order.status == 'picked_up' || order.status == 'in_transit') && (
             <TouchableOpacity
               style={styles.deliverBtn}
-              onPress={() =>delivereyBoyReachedDes(order)
-              }>
+              onPress={() => delivereyBoyReachedDes(order)}>
               <Text style={styles.btnText}>Deliver Order</Text>
             </TouchableOpacity>
           )}
@@ -347,14 +339,13 @@ const RiderViewAcceptedOrder = ({navigation, route}) => {
               <Text style={styles.btnText}>Deliver Order</Text>
             </TouchableOpacity>
           )} */}
-          {order.status == 'delivered' && (
+          {(order.status == 'delivered' && order.payment_status == 'confirmed_by_customer') && (
             <TouchableOpacity
               style={styles.deliverBtn}
               onPress={() => confirmorderPayment(order)}>
               <Text style={styles.btnText}>Confirm Payment</Text>
             </TouchableOpacity>
           )}
-
 
           <TouchableOpacity
             style={styles.mapBtn}
@@ -445,7 +436,6 @@ const styles = StyleSheet.create({
   location: {
     color: '#555',
     fontWeight: 'bold',
-    
   },
   phone: {
     fontSize: 12,
