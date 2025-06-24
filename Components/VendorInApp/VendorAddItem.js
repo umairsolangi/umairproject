@@ -32,6 +32,8 @@ const VendorAddItem = ({navigation, route}) => {
   const [timesensitive, setTimesensitive] = useState('');
   const [preparationTime, setPreparationTime] = useState('');
   const [price, setPrice] = useState('');
+    const [qty, setqty] = useState(0);
+
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [itemPicture, setItemPicture] = useState(null);
   const [ImagemodalVisible, setImageModalVisible] = useState(false);
@@ -114,6 +116,8 @@ const VendorAddItem = ({navigation, route}) => {
       formData.append('variation_name', selectedVariation);
       formData.append('price', price);
       formData.append('additional_info', additionalInfo);
+            formData.append('stock_qty', qty);
+
 
       if (itemPicture) {
         formData.append('itemPicture', {
@@ -196,6 +200,13 @@ const VendorAddItem = ({navigation, route}) => {
         mode="outlined"
         value={additionalInfo}
         onChangeText={setAdditionalInfo}
+        style={styles.input}
+      />
+      <TextInput
+        label="Quantity"
+        mode="outlined"
+        value={qty}
+        onChangeText={setqty}
         style={styles.input}
       />
       <View style={styles.pickerContainer}>

@@ -13,6 +13,7 @@ import {ActivityIndicator} from 'react-native-paper';
 import CustomDrawer from '../CommonComponents/CustomDrawer';
 import {convertDistance} from 'geolib';
 import RiderViewAcceptedOrder from './RiderViewAcceptedOrder';
+import RiderAddvehicle from './RiderAddvehicle';
 
 const Drawer = createDrawerNavigator();
 
@@ -70,12 +71,12 @@ const RiderDrawerNavigation = ({navigation, route}) => {
   };
 
   const renderHeaderRight = () => (
-    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-      {/* Bill icon with badge */}
-      <TouchableOpacity
+    <>
+    {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      {/* Bill icon with badge 
+       <TouchableOpacity
         onPress={() => navigation.navigate('Ready Orders', {Userdetails})}
         style={{marginRight: 10}}>
-        <Ionicons name="notifications-outline" size={28} color="#000" />
         {readyOrderCount > 0 && (
           <View
             style={{
@@ -96,14 +97,39 @@ const RiderDrawerNavigation = ({navigation, route}) => {
         )}
       </TouchableOpacity>
 
-      {/* Online switch */}
+       Online switch 
       <Switch
         value={isOnline}
         onValueChange={val => DeliveryBoyOffONline(val)}
         trackColor={{false: '#989c99', true: '#71c774'}}
         thumbColor={isOnline ? '#4CAF50' : 'grey'}
       />
-    </View>
+    </View> */}
+    <View
+  style={{
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 0,
+    padding: 5,
+   
+  }}>
+  <View>
+    
+    <Text style={{color: '#666', fontSize: 13}}>
+      {isOnline ? 'Online Mode' : 'Offline Mode'}
+    </Text>
+  </View>
+  <Switch
+    value={isOnline}
+    onValueChange={val => DeliveryBoyOffONline(val,Userdetails.delivery_boy_id)}
+    trackColor={{false: '#d1d1d1', true: '#71c774'}}
+    thumbColor={isOnline ? '#4CAF50' : '#ccc'}
+    ios_backgroundColor="#ccc"
+  />
+</View>
+
+    </>
   );
 
   return loading ? (
@@ -141,6 +167,20 @@ const RiderDrawerNavigation = ({navigation, route}) => {
         name="Your Orders"
         initialParams={{Userdetails}}
         component={RiderViewAcceptedOrder}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <MaterialCommunityIcons
+              name="clipboard-list"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Add vehicles"
+        initialParams={{Userdetails}}
+        component={RiderAddvehicle}
         options={{
           drawerIcon: ({color, size}) => (
             <MaterialCommunityIcons

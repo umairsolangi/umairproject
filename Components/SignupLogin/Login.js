@@ -10,7 +10,7 @@ import {
 import {Button, TextInput} from 'react-native-paper';
 
 const Login = ({navigation}) => {
-  const [email, setEmail] = useState('admin@gmail.com');
+  const [email, setEmail] = useState('ar@gmail.com');
   const [password, setPassword] = useState('0000');
 
   const [loading, setLoading] = useState(false);

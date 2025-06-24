@@ -49,6 +49,8 @@ import AdminIntegrationOption from './Components/Admin/AdminIntegrationOption';
 import AdminAddApiEndPoints from './Components/Admin/AdminAddApiEndPoints';
 import AdminAddMapping from './Components/Admin/AdminAddMapping';
 import AdminAddVariables from './Components/Admin/AdminAddVariables';
+import Customeraddratingtoitems from './Components/Customer/Customeraddratingtoitems';
+import Orgainizationadddeliveryboyvehicle from './Components/Organizations/Orgainizationadddeliveryboyvehicle';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -57,8 +59,8 @@ const App = () => {
   var mobileip = '192.168.76.191';
   
   var homewifi = '192.168.100.11';
-  global.url = `http://192.168.100.11:8000/api`;
-  global.imgURL = `http://${ipAdd}/MapProjectLmdApi/Images/`;
+  global.url = `http://192.168.243.191:8000/api`;
+  global.imgURL = `http://192.168.161.191:8000/`;
   /* screenOptions={{headerShown: false}} */
   return (
     <>
@@ -79,6 +81,8 @@ const App = () => {
               <Stack.Screen name="Order Detail" component={CustomerShowPlaceOrderDetails} />
               <Stack.Screen name="Items" component={CustomerShowPlaceOrderItem} />
               <Stack.Screen name="Live Tracking" component={CustomerTrackOrderMap} />
+              <Stack.Screen name="Order Feedback" component={Customeraddratingtoitems} />
+
 
 
 
@@ -100,6 +104,8 @@ const App = () => {
               <Stack.Screen name="Organization Signup" component={OrganizationSignup}/>
               <Stack.Screen name="Organization Dashboard" component={OrganizationDrawerNavigation} options={{headerShown: false}}/>
               <Stack.Screen name="Vendors Details" component={OrgVendorDetails} />
+              <Stack.Screen name="Add Vehicle" component={Orgainizationadddeliveryboyvehicle} />
+
 
 
 

@@ -16,9 +16,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {Card} from 'react-native-paper';
 import {getDistance} from 'geolib';
 import {Image} from 'react-native-reanimated/lib/typescript/Animated';
+import { useCart } from '../../Context/LmdContext';
 
 const RiderDashboard = ({navigation, route}) => {
+   const {isOnline, setIsOnline, setReadyOrder, DeliveryBoyOffONline} =useCart();
   const {Userdetails} = route.params;
+  console.log('curren status of rider',isOnline)
 
   const [orders, setOrders] = useState([]);
   const [selectedOrders, setSelectedOrders] = useState([]);
@@ -30,6 +33,11 @@ const RiderDashboard = ({navigation, route}) => {
   useEffect(() => {
     requestLocationPermission();
     fetchOrders();
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchOrders = () => {
@@ -37,8 +45,16 @@ const RiderDashboard = ({navigation, route}) => {
       .then(res => res.json())
       .then(json => {
         if (json.status === 'success') {
-          setOrders(json.data);
-          console.log('Succefull ready order');
+          if(Userdetails.name==='testdeliveryboy1'){
+            const gettestorder=(json.data).filter(e=>e.customer.name==='testcustomer1')
+             setOrders(gettestorder);
+
+            console.log('test order details',gettestorder)
+          }
+          else{
+            const gettestorder=(json.data).filter(e=>e.customer.name!=='testcustomer1')
+             setOrders(gettestorder);
+          }
         }
       })
       .catch(err => {
@@ -82,7 +98,7 @@ const RiderDashboard = ({navigation, route}) => {
       error => {
         console.log('Location error:', error.message);
         // fallback location
-        setRiderLocation({latitude: 33.6433, longitude: 73.0790});
+        setRiderLocation({latitude: 33.6433, longitude: 73.079});
       },
       {
         enableHighAccuracy: false,
@@ -127,25 +143,26 @@ const RiderDashboard = ({navigation, route}) => {
   };
 
   const handleAcceptOrder = async order => {
-     try {
-          const response = await fetch(
-            `${url}/deliveryboy/${Userdetails.delivery_boy_id}/accept-order/${order.suborder_id}`,
-            {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-            },
-          );
-    
-          if (response.ok) {
-            Alert.alert('Success', 'Order Accepted successfully');
-            navigation.navigate('Rider Orders',{Userdetails})
-          }
-        } catch (error) {
-          console.error('Error :', error);
-          Alert.alert('Error', 'Failed');
-        }
-  };
+    try {
+      const response = await fetch(
+        `${url}/deliveryboy/${Userdetails.delivery_boy_id}/accept-order/${order.suborder_id}`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
 
+      
+        Alert.alert('Success', 'Order Accepted successfully');
+        navigation.navigate('Rider Orders', {Userdetails});
+        setModalVisible(false)
+      
+    } catch (error) {
+      console.error('Error :', error);
+      Alert.alert('Error', 'Failed');
+    }
+  };
+if(isOnline){
   return (
     <View style={{flex: 1, backgroundColor: 'black'}}>
       <MapView
@@ -169,51 +186,74 @@ const RiderDashboard = ({navigation, route}) => {
         )}
 
         {/* Restaurant Markers */}
-        {Object.keys(groupedOrders).map(branchId => {
-          const branchOrders = groupedOrders[branchId];
-          const shopName = branchOrders[0].shop.name;
-          const branchName = branchOrders[0].shop.branch.name;
-          const pickup = branchOrders[0].shop.branch.pickup_location;
+     {Object.keys(groupedOrders).map(branchId => {
+  const branchOrders = groupedOrders[branchId];
+  const shopName = branchOrders[0].shop.name;
+  const branchName = branchOrders[0].shop.branch.name;
+  const pickup = branchOrders[0].shop.branch.pickup_location;
 
-          return (
-            <Marker
-              key={branchId}
-              coordinate={{
-                latitude: parseFloat(pickup.latitude),
-                longitude: parseFloat(pickup.longitude),
-              }}
-              onPress={() => handleMarkerPress(branchId)}>
-              <View style={{alignItems: 'center'}}>
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 8,
-                    marginBottom: 5,
-                    alignItems: 'center',
-                    elevation: 5,
-                    shadowColor: '#000',
-                    shadowOpacity: 0.2,
-                    shadowOffset: {width: 0, height: 2},
-                  }}>
-                  <Text
-                    style={{fontSize: 12, fontWeight: 'bold', color: '#000'}}>
-                    {shopName}
-                  </Text>
-                  <Text style={{fontSize: 10, color: '#555'}}>
-                    {branchOrders.length} Orders
-                  </Text>
-                </View>
-                <MaterialCommunityIcons
-                  name="map-marker"
-                  size={30}
-                  color="#F8544B"
-                />
-              </View>
-            </Marker>
-          );
-        })}
+  // ✅ Calculate distance here
+  let distanceInKm = null;
+  if (riderLocation) {
+    const distance = getDistance(
+      {
+        latitude: riderLocation.latitude,
+        longitude: riderLocation.longitude,
+      },
+      {
+        latitude: parseFloat(pickup.latitude),
+        longitude: parseFloat(pickup.longitude),
+      },
+    );
+    distanceInKm = (distance / 1000).toFixed(2); // in km
+  }
+
+  return (
+    <Marker
+      key={branchId}
+      coordinate={{
+        latitude: parseFloat(pickup.latitude),
+        longitude: parseFloat(pickup.longitude),
+      }}
+      onPress={() => handleMarkerPress(branchId)}>
+      <View style={{alignItems: 'center'}}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: 8,
+            marginBottom: 5,
+            alignItems: 'center',
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOpacity: 0.2,
+            shadowOffset: {width: 0, height: 2},
+          }}>
+          <Text
+            style={{fontSize: 12, fontWeight: 'bold', color: '#000'}}>
+            {shopName}
+          </Text>
+          <Text style={{fontSize: 10, color: '#555'}}>
+            {branchOrders.length} Orders
+          </Text>
+
+          {/* ✅ Show Distance */}
+          {distanceInKm && (
+            <Text style={{fontSize: 10, color: '#333',fontWeight:'bold'}}>
+              {distanceInKm} km away
+            </Text>
+          )}
+        </View>
+        <MaterialCommunityIcons
+          name="map-marker"
+          size={30}
+          color="#F8544B"
+        />
+      </View>
+    </Marker>
+  );
+})}
       </MapView>
 
       {/* Modal */}
@@ -305,6 +345,35 @@ const RiderDashboard = ({navigation, route}) => {
       </Modal>
     </View>
   );
+
+}
+else{
+  return (
+ <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fef6f5'}}>
+  <View
+    style={{
+      backgroundColor: '#ffe6e6',
+      padding: 25,
+      borderRadius: 20,
+      alignItems: 'center',
+      elevation: 5,
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
+      shadowOffset: {width: 0, height: 3},
+    }}>
+    <Text style={{color: '#F8544B', fontSize: 22, fontWeight: 'bold', marginBottom: 10}}>
+      You're in OFF Mode
+    </Text>
+    <Text style={{color: '#333', fontSize: 16, textAlign: 'center'}}>
+      You are currently not available for new orders.
+    </Text>
+  </View>
+</View>
+
+  );
+}
+  
 };
 
 const styles = StyleSheet.create({

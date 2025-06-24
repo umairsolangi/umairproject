@@ -6,14 +6,18 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import {RefreshControl} from 'react-native-gesture-handler';
+import {Button} from 'react-native-paper';
 
 const OrgReceiveVendorReq = ({navigation, route}) => {
   const {organizationdetails} = route.params;
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const categories = ['All', 'Approved', 'Unapproved'];
 
   useEffect(() => {
     fetchPendingRequests();
@@ -32,13 +36,22 @@ const OrgReceiveVendorReq = ({navigation, route}) => {
       console.error('Error fetching vendor requests:', error.message);
     } finally {
       setLoading(false);
-      setRefreshing(false)
+      setRefreshing(false);
     }
   };
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchPendingRequests();
   };
+
+  const filteredRequests = useMemo(() => {
+    if (selectedCategory === 'All') return requests;
+    if (selectedCategory === 'Approved') return requests.filter(r => r.approval_status === 'approved');
+    if (selectedCategory === 'Unapproved') return requests.filter(r => r.approval_status !== 'approved');
+    return requests;
+  }, [requests, selectedCategory]);
+
   const renderRequestItem = ({item}) => (
     <View style={styles.card}>
       <View style={{flex: 1}}>
@@ -48,11 +61,13 @@ const OrgReceiveVendorReq = ({navigation, route}) => {
         <Text style={styles.status}>Status: {item.approval_status}</Text>
       </View>
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Vendors Details', {vendor: item})}
-        style={styles.previewButton}>
-        <Text style={styles.previewText}>Preview</Text>
-      </TouchableOpacity>
+      {item.approval_status !== 'approved' && (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Vendors Details', {vendor: item})}
+          style={styles.previewButton}>
+          <Text style={styles.previewText}>Preview</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -61,13 +76,31 @@ const OrgReceiveVendorReq = ({navigation, route}) => {
       <ActivityIndicator size="large" color="black" />
     </View>
   ) : (
-    <View style={{padding: 10}}>
+    <View style={{flex: 1, padding: 10}}>
+      <View style={styles.categoryContainer}>
+        <FlatList
+          horizontal
+          data={categories}
+          keyExtractor={item => item}
+          renderItem={({item}) => (
+            <Button
+              mode={selectedCategory === item ? 'contained' : 'outlined'}
+              textColor={selectedCategory === item ? 'white' : 'black'}
+              buttonColor={selectedCategory === item ? '#F8544B' : 'white'}
+              onPress={() => setSelectedCategory(item)}
+              style={styles.categoryButton}>
+              {item}
+            </Button>
+          )}
+        />
+      </View>
+
       <FlatList
-        data={requests}
+        data={filteredRequests}
         keyExtractor={item => item.request_id.toString()}
         renderItem={renderRequestItem}
         ListEmptyComponent={
-          <Text style={{textAlign: 'center', marginTop: 20}}>
+          <Text style={{textAlign: 'center', marginTop: 20, color: 'black'}}>
             No pending requests found.
           </Text>
         }
@@ -92,9 +125,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  categoryContainer: {
+    paddingBottom: 10,
+  },
+  categoryButton: {
+    marginHorizontal: 5,
+    borderRadius: 20,
+  },
   card: {
     flexDirection: 'row',
-
     backgroundColor: '#f5f0f0',
     borderRadius: 8,
     padding: 10,

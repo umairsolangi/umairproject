@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useMemo, useCallback} from 'react';
 import {
   View,
   Text,
@@ -16,18 +16,17 @@ import Geolocation from '@react-native-community/geolocation';
 const RiderViewAcceptedOrder = ({navigation, route}) => {
   const {Userdetails} = route.params;
   const [pickeduporders, setPickedUpOrders] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const trackingId = useRef(null);
   const ratePerKm = 20;
-console.log('Filetpply')
+
   const categories = [
     'All',
     'Accepted Orders',
     'Picked_UP Orders',
-    'In_Transit Orders',
+    'in_transit order',
     'Delivered Orders',
     'Confirmed Payment',
   ];
@@ -60,7 +59,6 @@ console.log('Filetpply')
       const data = await response.json();
       if (data?.data) {
         setPickedUpOrders(data.data);
-        setFilteredItems(data.data)        
       }
     } catch (error) {
       console.error('Error fetching orders:', error.message);
@@ -76,52 +74,35 @@ console.log('Filetpply')
     setSelectedCategory('All');
   };
 
-  const filterItems = category => {
-    setSelectedCategory(category);
-    let status = '';
-    switch (category) {
-      case 'Accepted Orders':
-        status = 'assigned';
-        break;
-      case 'Picked_UP Orders':
-        status = 'picked_up';
-        break;
-      case 'In_Transit Orders':
-        status = 'in_transit';
-        break;
-      case 'Delivered Orders':
-        status = 'delivered';
-        break;
-      case 'Confirmed Payment':
-        status = 'confirmed_by_deliveryboy';
-        break;
-      default:
-        status = '';
-    }
+  const filteredOrders = useMemo(() => {
+    if (selectedCategory === 'All') return pickeduporders;
 
-    if (status === '') {
-      setFilteredItems(pickeduporders);
-    } else if (status === 'confirmed_by_deliveryboy') {
-      const filtered = pickeduporders.filter(
-        order => order.payment_status === status,
-      );
-      setFilteredItems(filtered);
-    } else if (status === 'delivered') {
-      const filtered = pickeduporders.filter(
-        order => order.payment_status === 'confirmed_by_customer' && order.status == 'delivered' 
-      );
-      setFilteredItems(filtered);
+    const statusMap = {
+      'Accepted Orders': 'assigned',
+      'Picked_UP Orders': 'picked_up',
+      'in_transit order': 'handover_confirmed',
+      'Delivered Orders': 'delivered',
+      'Confirmed Payment': 'confirmed_by_deliveryboy',
+    };
+
+    const status = statusMap[selectedCategory];
+
+    if (status === 'confirmed_by_deliveryboy') {
+      return pickeduporders.filter(o => o.payment_status === status);
     }
-     else {
-      const filtered = pickeduporders.filter(
-        order =>
-          order.status === status ,
+    if (status === 'delivered') {
+      return pickeduporders.filter(
+        o =>
+          o.payment_status === 'confirmed_by_customer' &&
+          o.status === 'delivered',
       );
-      setFilteredItems(filtered);
     }
-  };
+    return pickeduporders.filter(o => o.status === status);
+  }, [pickeduporders, selectedCategory]);
 
   const handleMarkPickup = async order => {
+    setLoading(true);
+
     Geolocation.getCurrentPosition(
       async position => {
         const latitude = position.coords.latitude;
@@ -142,6 +123,7 @@ console.log('Filetpply')
 
           if (response.ok) {
             Alert.alert('Success', 'Order Picked UP Successfully');
+            fetchOrders()
 
             /*             startLiveLocationTracking(order.suborder_id);
              */
@@ -150,6 +132,8 @@ console.log('Filetpply')
           }
         } catch (error) {
           console.error('Error marking as picked up:', error.message);
+        } finally {
+          setLoading(false);
         }
       },
       error => {
@@ -165,6 +149,7 @@ console.log('Filetpply')
   };
 
   const delivereyBoyReachedDes = async order => {
+    setLoading(true)
     Geolocation.getCurrentPosition(
       async position => {
         const latitude = position.coords.latitude;
@@ -186,6 +171,7 @@ console.log('Filetpply')
           const data = await response.json();
           if (response.ok) {
             Alert.alert('Success', 'Order marked as delivered');
+            fetchOrders()
             if (trackingId.current !== null) {
               Geolocation.clearWatch(trackingId.current);
 
@@ -197,6 +183,8 @@ console.log('Filetpply')
           }
         } catch (error) {
           console.error('Error marking as delivered:', error.message);
+        } finally {
+          setLoading(false);
         }
       },
       error => {
@@ -239,6 +227,7 @@ console.log('Filetpply')
   }; */
 
   const confirmorderPayment = async order => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${url}/deliveryboy/confirm-payment/${order.suborder_id}`,
@@ -251,119 +240,115 @@ console.log('Filetpply')
       const data = await response.json();
       if (response.ok) {
         Alert.alert('Success', 'Payment Confirm Succeccfully');
+        fetchOrders()
       } else {
         Alert.alert('Error', 'Customer Not Confirmed Payment');
       }
     } catch (error) {
       console.error('Error marking as delivered:', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const renderOrderCard = ({item: order}) => {
-    const pickup = order.shop.branch.pickup_location;
-    const delivery = order.customer.delivery_address;
-    const {km, charges} = calculateCharges(pickup, delivery);
+  const renderOrderCard = useCallback(
+    ({item: order}) => {
+      const pickup = order.shop.branch.pickup_location;
+      const delivery = order.customer.delivery_address;
+      const {km, charges} = calculateCharges(pickup, delivery);
 
-    return (
-      <Card
-        key={order.suborder_id}
-        style={{
-          marginBottom: 15,
-          backgroundColor: '#faebeb',
-          borderRadius: 12,
-          padding: 10,
-        }}>
-        {/* Pickup Info */}
-        <View style={styles.infoRow}>
-          <View style={styles.iconColumn}>
-            <MaterialCommunityIcons
-              name="map-marker"
-              size={30}
-              color="#F8544B"
-            />
-            <Text style={styles.label}>Pickup</Text>
+      return (
+        <Card
+          key={order.suborder_id}
+          style={{
+            marginBottom: 15,
+            backgroundColor: '#faebeb',
+            borderRadius: 12,
+            padding: 10,
+          }}>
+          <View style={styles.infoRow}>
+            <View style={styles.iconColumn}>
+              <MaterialCommunityIcons
+                name="map-marker"
+                size={30}
+                color="#F8544B"
+              />
+              <Text style={styles.label}>Pickup</Text>
+            </View>
+            <View style={{flex: 1}}>
+              <Text style={styles.orderId}>Order ID: {order.suborder_id}</Text>
+              <Text style={styles.orderId}>Status: {order.status}</Text>
+              <Text style={styles.shopName}>{order.shop.name}</Text>
+              <Text style={styles.location}>
+                {order.shop.branch.name},{' '}
+                {order.shop.branch.pickup_location.city}
+              </Text>
+            </View>
           </View>
-          <View style={{flex: 1}}>
-            <Text style={styles.orderId}>Order ID: {order.suborder_id}</Text>
-            <Text style={styles.orderId}>Status: {order.status}</Text>
-            <Text style={styles.shopName}>{order.shop.name}</Text>
-            <Text style={styles.location}>
-              {order.shop.branch.name}, {order.shop.branch.pickup_location.city}
-            </Text>
+
+          <View style={styles.infoRow}>
+            <View style={styles.iconColumn}>
+              <MaterialCommunityIcons
+                name="map-marker"
+                size={30}
+                color="#4CAF50"
+              />
+              <Text style={styles.label}>Deliver</Text>
+            </View>
+            <View style={{flex: 1}}>
+              <Text style={styles.boldText}>{order.customer.name}</Text>
+              <Text style={styles.phone}>{order.customer.phone}</Text>
+              <Text style={styles.location}>
+                {delivery.street}, {delivery.city}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.infoRow}>
-          <View style={styles.iconColumn}>
-            <MaterialCommunityIcons
-              name="map-marker"
-              size={30}
-              color="#4CAF50"
-            />
-            <Text style={styles.label}>Deliver</Text>
+          <Text style={styles.distanceText}>
+            Delivery Distance: <Text style={styles.boldText}>{km} km</Text>
+            {'                                '}
+            Delivery Charges: <Text style={styles.boldText}>Rs {charges}</Text>
+          </Text>
+
+          <View style={styles.actionRow}>
+            {order.status === 'assigned' && (
+              <TouchableOpacity
+                style={styles.deliverBtn}
+                onPress={() => handleMarkPickup(order)}>
+                <Text style={styles.btnText}>Picked Order</Text>
+              </TouchableOpacity>
+            )}
+            {(order.status === 'picked_up' ||
+              order.status === 'handover_confirmed') && (
+              <TouchableOpacity
+                style={styles.deliverBtn}
+                onPress={() => delivereyBoyReachedDes(order)}>
+                <Text style={styles.btnText}>Deliver Order</Text>
+              </TouchableOpacity>
+            )}
+            {order.status === 'delivered' &&
+              order.payment_status === 'confirmed_by_customer' && (
+                <TouchableOpacity
+                  style={styles.deliverBtn}
+                  onPress={() => confirmorderPayment(order)}>
+                  <Text style={styles.btnText}>Confirm Payment</Text>
+                </TouchableOpacity>
+              )}
+
+            <TouchableOpacity
+              style={styles.mapBtn}
+              onPress={() => navigation.navigate('Map', {order})}>
+              <Text style={styles.btnText}>View on Map</Text>
+            </TouchableOpacity>
           </View>
-          <View style={{flex: 1}}>
-            <Text style={styles.boldText}>{order.customer.name}</Text>
-            <Text style={styles.phone}>{order.customer.phone}</Text>
-            <Text style={styles.location}>
-              {delivery.street}, {delivery.city}
-            </Text>
-          </View>
-        </View>
+        </Card>
+      );
+    },
+    [navigation],
+  );
 
-        <Text style={styles.distanceText}>
-          Delivery Distance: <Text style={styles.boldText}>{km} km</Text>
-          {'\n'}
-          Delivery Charges: <Text style={styles.boldText}>Rs {charges}</Text>
-        </Text>
-
-        <View style={styles.actionRow}>
-          {order.status == 'assigned' && (
-            <TouchableOpacity
-              style={styles.deliverBtn}
-              onPress={() => handleMarkPickup(order)}>
-              <Text style={styles.btnText}>Picked Order</Text>
-            </TouchableOpacity>
-          )}
-          {(order.status == 'picked_up' || order.status == 'in_transit') && (
-            <TouchableOpacity
-              style={styles.deliverBtn}
-              onPress={() => delivereyBoyReachedDes(order)}>
-              <Text style={styles.btnText}>Deliver Order</Text>
-            </TouchableOpacity>
-          )}
-          {/* {order.status == 'picked_up' && (
-            <TouchableOpacity
-              style={styles.deliverBtn}
-              onPress={() => delivereyBoyReachedDes('picked_up')}>
-              <Text style={styles.btnText}>Deliver Order</Text>
-            </TouchableOpacity>
-          )} */}
-          {(order.status == 'delivered' && order.payment_status == 'confirmed_by_customer') && (
-            <TouchableOpacity
-              style={styles.deliverBtn}
-              onPress={() => confirmorderPayment(order)}>
-              <Text style={styles.btnText}>Confirm Payment</Text>
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={styles.mapBtn}
-            onPress={() => navigation.navigate('Map', {order})}>
-            <Text style={styles.btnText}>View on Map</Text>
-          </TouchableOpacity>
-        </View>
-      </Card>
-    );
-  };
-
-  return loading ? (
-    <View style={styles.centered}>
-      <ActivityIndicator size="large" color="black" />
-    </View>
-  ) : (
+  return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
-      {/* Category Filter */}
       <View style={styles.categoryContainer}>
         <FlatList
           horizontal
@@ -375,7 +360,7 @@ console.log('Filetpply')
               mode={selectedCategory === item ? 'contained' : 'outlined'}
               textColor={selectedCategory === item ? 'white' : 'black'}
               buttonColor={selectedCategory === item ? '#F8544B' : 'white'}
-              onPress={() => filterItems(item)}
+              onPress={() => setSelectedCategory(item)}
               style={styles.categoryButton}>
               {item}
             </Button>
@@ -383,12 +368,14 @@ console.log('Filetpply')
         />
       </View>
 
-      {/* Order List */}
       <FlatList
-        data={filteredItems}
+        data={filteredOrders}
         keyExtractor={item => item.suborder_id.toString()}
         renderItem={renderOrderCard}
         contentContainerStyle={{padding: 10}}
+        initialNumToRender={5}
+        maxToRenderPerBatch={10}
+        windowSize={5}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -398,6 +385,33 @@ console.log('Filetpply')
           </Text>
         }
       />
+      {loading && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            zIndex: 10,
+          }}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              borderRadius: 10,
+            }}>
+            <Text
+              style={{marginBottom: 10, fontWeight: 'bold', color: 'black'}}>
+              Loading...
+            </Text>
+            <ActivityIndicator size="large" color="#F8544B" />
+          </View>
+        </View>
+      )}
     </View>
   );
 };

@@ -8,8 +8,9 @@ import {
   Pressable,
   Modal,
   Text,
+  ActivityIndicator
 } from 'react-native';
-import {RadioButton, TextInput, Button, Menu} from 'react-native-paper';
+import {RadioButton, TextInput, Button, Menu, } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, {Marker} from 'react-native-maps';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -19,6 +20,7 @@ import AddnewAddress from '../CommonComponents/Addaddress';
 
 const UserSignup = ({navigation, route}) => {
   const {role} = route.params;
+const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -78,6 +80,8 @@ const UserSignup = ({navigation, route}) => {
       setErrorModalVisible(true);
       return;
     }
+      setLoading(true); 
+
   
     const formData = new FormData();
     formData.append('name', name);
@@ -149,6 +153,9 @@ const UserSignup = ({navigation, route}) => {
       setErrorMessage('Signup failed! Please try again later.');
       setErrorModalVisible(true);
     }
+    finally {
+    setLoading(false); 
+  }
   };
   
 
@@ -375,6 +382,30 @@ const UserSignup = ({navigation, route}) => {
           </View>
         </View>
       </Modal>
+      {loading && (
+  <View
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      zIndex: 10,
+    }}>
+    <View
+      style={{
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+      }}>
+      <Text style={{marginBottom: 10, fontWeight: 'bold',color:'black'}}>Submitting...</Text>
+      <ActivityIndicator size="large" color="#F8544B" />
+    </View>
+  </View>
+)}
     </ScrollView>
   );
 };

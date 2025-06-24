@@ -6,19 +6,17 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
-  TouchableOpacity,
   Alert,
 } from 'react-native';
 import {Button} from 'react-native-paper';
 
 const VendorShowOrderDetails = ({route, navigation}) => {
-  const {orderDetails} = route.params;
+  const {orderDetails, vendordetails} = route.params;
   const [orderItems, setOrderItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [estimatedTime, setEstimatedTime] = useState(20);
   const [subtotal, setSubtotal] = useState(0);
   const deliveryCharges = 0;
-console.log('order no 16 detaisl',orderDetails)
+
   useEffect(() => {
     fetchOrderedItemDetails();
   }, []);
@@ -26,78 +24,81 @@ console.log('order no 16 detaisl',orderDetails)
   const fetchOrderedItemDetails = async () => {
     try {
       const response = await fetch(
-        `${url}/suborders/${orderDetails.suborder_id}/details`,
+        `${url}/vendor/ordered-items/${vendordetails.vendor_id}/${orderDetails.shop_id}/${orderDetails.branch_id}/${orderDetails.suborder_id}`,
       );
       const data = await response.json();
-      if (data) {
-        setOrderItems(data.order_details);
-        const total = data.order_details.reduce(
+      if (data && data.order_detail_info) {
+        setOrderItems(data.order_detail_info);
+        const total = data.order_detail_info.reduce(
           (sum, item) => sum + parseFloat(item.order_detail_total),
           0,
         );
         setSubtotal(total);
+      } else {
+        Alert.alert('Error', 'Order details not found.');
       }
     } catch (error) {
-      console.error('Please Try Again:', error);
+      console.error('Fetch error:', error);
+      Alert.alert('Error', 'Failed to fetch order items.');
     } finally {
       setLoading(false);
     }
   };
 
-  const updateOrderStatus = async std => {
-    const obj = {
-      role: 'vendor',
-      status: std,
-    };
+  const updateOrderStatus = async status => {
     try {
-      const response = await fetch(
-        `${url}/suborders/${orderDetails.suborder_id}/status`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(obj),
+      let endpoint = '';
+      if (status === 'in_progress') {
+        endpoint = `/vendor/order/${orderDetails.suborder_id}/in-progress`;
+      } else if (status === 'ready') {
+        endpoint = `/vendor/order/${orderDetails.suborder_id}/ready`;
+      } else if (status === 'handover_confirmed') {
+        endpoint = `/vendor/order/${orderDetails.suborder_id}/handover`;
+      }
+
+      const response = await fetch(`${url}${endpoint}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
-      Alert;
+      });
 
       if (response.ok) {
-        Alert.alert('Success', 'Order Status Updated successfully');
+        Alert.alert('Success', 'Order status updated successfully');
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Failed', errorData.message || 'Something went wrong');
       }
     } catch (error) {
-      console.error('Error :', error);
-      Alert.alert('Error', 'Failed');
+      console.error('Status update error:', error);
+      Alert.alert('Error', 'Failed to update status');
     }
   };
 
   const confirmPayment = async () => {
- 
     try {
       const response = await fetch(
         `${url}/vendor/confirm-payment/${orderDetails.suborder_id}`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-         
         },
       );
-      Alert;
 
       if (response.ok) {
-        Alert.alert('Success', 'Confirm Payment successfully');
-      }
-      else{
-        Alert.alert('Error', 'DeliveryBoy not Confirm Payment');
-
+        Alert.alert('Success', 'Payment confirmed successfully');
+      } else {
+        Alert.alert('Error', 'Delivery boy has not confirmed payment yet');
       }
     } catch (error) {
-      console.error('Error :', error);
-      Alert.alert('Error', 'Failed');
+      console.error('Payment confirmation error:', error);
+      Alert.alert('Error', 'Failed to confirm payment');
     }
   };
 
   const renderItem = ({item}) => (
     <View style={styles.itemCard}>
-      <View style={{flex: 1, marginLeft: 10}}>
+      <View style={{flex: 1, marginRight: 10}}>
         <Text style={styles.itemTitle}>{item.item.item_name}</Text>
         {item.item.variation_name ? (
           <Text style={styles.itemSubText}>
@@ -127,14 +128,33 @@ console.log('order no 16 detaisl',orderDetails)
     </View>
   );
 
-  const handleTimeChange = val => {
-    setEstimatedTime(prev => Math.max(0, prev + val));
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Order# LMD-{orderDetails.suborder_id}</Text>
       <Text style={styles.dateText}>Date: {orderDetails.order_date}</Text>
+      {/* Customer Info Card */}
+<View style={styles.customerCard}>
+  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+    
+    <View style={{marginLeft: 0, flex: 1}}>
+      <Text style={{color:'black',fontSize:19,fontWeight:'bold'}}>
+        Customer Details
+      </Text>
+      <Text style={styles.customerName}>
+        {orderDetails.customer?.name || 'Customer'}
+      </Text>
+      <Text style={styles.customerPhone}>
+        {orderDetails.customer?.phone_no || 'N/A'}
+      </Text>
+      <Text style={styles.customerAddress}>
+        {orderDetails.customer?.address?.street || 'Street not provided'},
+        {' '}
+        {orderDetails.customer?.address?.city || 'City'}
+      </Text>
+    </View>
+  </View>
+</View>
+
 
       {loading ? (
         <ActivityIndicator
@@ -161,48 +181,38 @@ console.log('order no 16 detaisl',orderDetails)
             </Text>
           </View>
 
-          {/* <Text style={styles.estimateLabel}>Estimated Serving Time</Text>
-          <View style={styles.estimateRow}>
-            <TouchableOpacity style={styles.circleButton} onPress={() => handleTimeChange(-5)}>
-              <Text style={styles.circleButtonText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.timeText}>{estimatedTime} min</Text>
-            <TouchableOpacity style={styles.circleButton} onPress={() => handleTimeChange(5)}>
-              <Text style={styles.circleButtonText}>+</Text>
-            </TouchableOpacity>
-          </View> */}
-
           <View style={styles.actionRow}>
-            {orderDetails.status == 'pending' && (
+            {orderDetails.status === 'pending' && (
               <Button
                 mode="contained"
-                onPress={()=>updateOrderStatus('in_progress')}
+                onPress={() => updateOrderStatus('in_progress')}
                 style={styles.acceptButton}>
                 Accept
               </Button>
             )}
-            {orderDetails.status == 'in_progress' && (
+            {orderDetails.status === 'in_progress' && (
               <Button
                 mode="contained"
-                onPress={()=>updateOrderStatus('ready')}
+                onPress={() => updateOrderStatus('ready')}
                 style={[styles.acceptButton, {backgroundColor: '#ff4d4d'}]}>
                 Move To Ready
               </Button>
             )}
-            {orderDetails.status == 'picked_up' && (
+            {orderDetails.status === 'picked_up' && (
               <Button
                 mode="contained"
-                onPress={()=>updateOrderStatus('handover_confirmed')}
+                onPress={() => updateOrderStatus('handover_confirmed')}
                 style={[styles.acceptButton, {backgroundColor: '#ff4d4d'}]}>
                 Handover To Rider
               </Button>
             )}
-             {orderDetails.Suborder_Payment_status == 'confirmed_by_deliveryboy' && (
+            {orderDetails.Suborder_Payment_status ===
+              'confirmed_by_deliveryboy' && (
               <Button
                 mode="contained"
                 onPress={confirmPayment}
                 style={[styles.acceptButton, {backgroundColor: '#ff4d4d'}]}>
-                Confirm Payment 
+                Confirm Payment
               </Button>
             )}
           </View>
@@ -229,96 +239,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#333',
   },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#ccc',
-    paddingVertical: 8,
-    paddingHorizontal: 5,
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
-  },
-  tableHeaderText: {
-    fontWeight: 'bold',
-    flex: 1,
-    textAlign: 'center',
-    color: '#000',
-  },
-  itemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-    backgroundColor: '#fff',
-    paddingHorizontal: 5,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-  },
-  itemText: {
-    color: '#000',
-    flex: 1,
-    textAlign: 'center',
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 5,
-    paddingHorizontal: 5,
-  },
-  summaryLabel: {
-    fontSize: 16,
-    color: '#000',
-  },
-  summaryValue: {
-    fontSize: 16,
-    color: '#000',
-  },
-  totalLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  totalValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  estimateLabel: {
-    marginTop: 15,
-    textAlign: 'center',
-    fontSize: 16,
-    color: '#000',
-  },
-  estimateRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  circleButton: {
-    backgroundColor: '#ccc',
-    borderRadius: 10,
-    padding: 10,
-    marginHorizontal: 20,
-  },
-  circleButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  timeText: {
-    fontSize: 18,
-    color: '#000',
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 15,
-  },
-  acceptButton: {
-    backgroundColor: 'green',
-    width: '100%',
-  },
-
   itemCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -358,5 +278,66 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000',
     fontWeight: '600',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+    paddingHorizontal: 5,
+  },
+  summaryLabel: {
+    fontSize: 16,
+    color: '#000',
+  },
+  summaryValue: {
+    fontSize: 16,
+    color: '#000',
+  },
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  actionRow: {
+    marginTop: 15,
+  },
+  acceptButton: {
+    backgroundColor: 'green',
+    width: '100%',
+    marginBottom: 10,
+  },
+  customerCard: {
+    backgroundColor: '#fff',
+    borderRadius: 1,
+    padding: 12,
+    marginBottom: 12,
+ 
+  },
+  customerImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  customerName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'grey',
+  },
+  customerPhone: {
+    fontSize: 14,
+    color: '#444',
+    marginTop: 2,
+  },
+  customerAddress: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 2,
   },
 });

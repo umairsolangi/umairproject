@@ -37,7 +37,7 @@ const VendorBranchDrawerNav = ({navigation, route}) => {
         drawerActiveTintColor: '#F8544B',
         drawerInactiveTintColor: '#666',
       }}>
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Dashboard"
         component={VendorBranchesDashboard}
         options={{
@@ -49,7 +49,7 @@ const VendorBranchDrawerNav = ({navigation, route}) => {
             />
           ),
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="Orders"
         component={VednorShowOrders}

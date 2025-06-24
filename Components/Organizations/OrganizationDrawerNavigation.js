@@ -8,6 +8,8 @@ import OrganizationAddDeliverBoy from './OrganizationAddDeliverBoy';
 import {ActivityIndicator} from 'react-native-paper';
 import OrganizationCustomDrawer from './OrganizationCustomDrawer';
 import OrgReceiveVendorReq from './OrgReceiveVendorReq';
+import OrganizationAddVehiclecatagory from './OrganizationAddVehiclecatagory';
+import OrgainzationExistingriders from './OrgainzationExistingriders';
 
 const Drawer = createDrawerNavigator();
 
@@ -63,6 +65,8 @@ const OrganizationDrawerNavigation = ({navigation, route}) => {
       <Drawer.Screen
         name="Dashboard"
         component={OrganizationDashboard}
+        initialParams={{organizationdetails}}
+
         options={{
           drawerIcon: ({color, size}) => (
             <MaterialCommunityIcons
@@ -81,6 +85,37 @@ const OrganizationDrawerNavigation = ({navigation, route}) => {
           drawerIcon: ({color, size}) => (
             <MaterialCommunityIcons
               name="account-multiple-plus"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+<Drawer.Screen
+        name="All Riders"
+        component={OrgainzationExistingriders}
+        initialParams={{organizationdetails}}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <MaterialCommunityIcons
+              name="account-group"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+
+
+
+      <Drawer.Screen
+        name="Vehicle catagory"
+        component={OrganizationAddVehiclecatagory}
+        initialParams={{organizationdetails}}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <MaterialCommunityIcons
+              name="car-multiple"
               color={color}
               size={size}
             />

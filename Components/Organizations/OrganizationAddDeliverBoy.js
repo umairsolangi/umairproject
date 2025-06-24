@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   Modal,
+  ActivityIndicator
 } from 'react-native';
 import {TextInput, Button, Text, HelperText} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -19,6 +20,8 @@ import AddnewAddress from '../CommonComponents/Addaddress';
 const OrganizationAddDeliverBoy = ({navigation, route}) => {
   const {organizationdetails}=route.params
   console.log(organizationdetails)
+  const [loading, setLoading] = useState(false);
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone_no, setPhoneNo] = useState('');
@@ -114,7 +117,7 @@ const OrganizationAddDeliverBoy = ({navigation, route}) => {
   };
   const handleSubmit = async () => {
     setSummaryVisible(false);
-
+setLoading(true);
     const formData = new FormData();
 
     formData.append('name', name);
@@ -195,6 +198,8 @@ const OrganizationAddDeliverBoy = ({navigation, route}) => {
           latitude: '',
           longitude: '',
         });
+        //navigation.navigate('Branch Details', { vendor: item })
+
         setTimeout(() => {
           setErrorModalVisible(false);
 
@@ -213,6 +218,9 @@ const OrganizationAddDeliverBoy = ({navigation, route}) => {
       setErrorMessage('Signup failed! Please try again later.');
       setErrorModalVisible(true);
     }
+    finally {
+    setLoading(false); 
+  }
     console.log('Dellivery Boy Data', formData);
   };
 
@@ -515,6 +523,32 @@ const OrganizationAddDeliverBoy = ({navigation, route}) => {
           </View>
         </View>
       </Modal>
+
+
+      {loading && (
+  <View
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      zIndex: 10,
+    }}>
+    <View
+      style={{
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+      }}>
+      <Text style={{marginBottom: 10, fontWeight: 'bold',color:'black'}}>Submitting...</Text>
+      <ActivityIndicator size="large" color="#F8544B" />
+    </View>
+  </View>
+)}
     </ScrollView>
   );
 };

@@ -98,7 +98,7 @@ const VendorShowOrders = ({navigation, route}) => {
         status = 'picked_up';
         break;
       case 'In-Transit Orders':
-        status = 'in_transit';
+        status = 'handover_confirmed';
         break;
       case 'Delivered Orders':
         status = 'delivered';
@@ -127,7 +127,7 @@ const VendorShowOrders = ({navigation, route}) => {
       <TouchableOpacity
         style={styles.orderCard}
         onPress={() =>
-          navigation.navigate('Order Details', {orderDetails: item})
+          navigation.navigate('Order Details', {orderDetails: item,vendordetails:vendordata})
         }>
         <View style={styles.orderInfo}>
           <Text style={styles.orderId}>Order# LMD-{item.suborder_id}</Text>

@@ -51,7 +51,7 @@ const CustomerDrawerNavigation = ({navigation, route}) => {
       <Drawer.Screen
         name="Home"
         component={CustomerDashboard}
-        initialParams={{cutomerdata}}
+        initialParams={{customerFullData}}
         options={{
           drawerLabel: 'Home',
           drawerIcon: ({color, size}) => (

@@ -6,41 +6,43 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { RefreshControl } from 'react-native-gesture-handler';
 
 const BranchApprove = () => {
-  const [vendors, setVendors] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [filteredBranches, setFilteredBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  
+  const [filter, setFilter] = useState('all'); // all | approved | unapproved
   const navigation = useNavigation();
 
   useEffect(() => {
     fetchBranches();
   }, []);
 
+  useEffect(() => {
+    filterBranches(filter);
+  }, [branches, filter]);
+
   const fetchBranches = async () => {
     try {
       setLoading(true);
       const response = await fetch(`${url}/admin/branches/pendingBranches`);
       const data = await response.json();
-      if (data) {
-        // Filter only pending branches
-        const pending = data.pending_branches.filter(
-          branch => branch.branch_approval_status !== 'approved'
-        );
-        setVendors(pending);
-        console.log('Filtered pending branches:', pending);
+      if (data && Array.isArray(data.pending_branches)) {
+        setBranches(data.pending_branches);
+      } else {
+        setBranches([]);
       }
     } catch (error) {
       console.error('Error fetching Branches:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
-
     }
   };
 
@@ -48,47 +50,84 @@ const BranchApprove = () => {
     setRefreshing(true);
     fetchBranches();
   };
+
+  const filterBranches = (type) => {
+    if (type === 'approved') {
+      setFilteredBranches(branches.filter(branch => branch.branch_approval_status === 'approved'));
+    } else if (type === 'unapproved') {
+      setFilteredBranches(branches.filter(branch => branch.branch_approval_status !== 'approved'));
+    } else {
+      setFilteredBranches(branches);
+    }
+  };
+
   const renderBranch = ({ item }) => (
     <View style={styles.card}>
       <Image source={{ uri: item.branch_picture }} style={styles.image} />
       <View style={styles.info}>
-        <Text style={styles.name}>{item.vendor_name}</Text>
+                <Text style={styles.detail}>Owner: {item.vendor_name}</Text>
+
+        <Text style={styles.name}>{item.shop_name}</Text>
         <Text style={styles.detail}>{item.branch_description}</Text>
-        <Text style={styles.detail}>
-          Status: {item.branch_approval_status}
-        </Text>
-        <Button
-          mode="contained"
-          onPress={() =>
-            navigation.navigate('Branch Details', { vendor: item })
-          }
-          style={styles.button}>
-          Preview
-        </Button>
+        <Text style={styles.detail}>Status: {item.branch_approval_status}</Text>
+        {item.branch_approval_status !== 'approved' && (
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('Branch Details', { vendor: item })}
+            style={styles.button}>
+            Preview
+          </Button>
+        )}
       </View>
     </View>
   );
 
+  const FilterButton = ({ label, value }) => (
+    <TouchableOpacity
+      onPress={() => setFilter(value)}
+      style={[
+        styles.filterButton,
+        filter === value && styles.filterButtonActive
+      ]}
+    >
+      <Text
+        style={[
+          styles.filterText,
+          filter === value && styles.filterTextActive
+        ]}
+      >
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      {loading ? (
+      {/* Filter Buttons */}
+      <View style={styles.filterRow}>
+        <FilterButton label="All" value="all" />
+        <FilterButton label="Approved" value="approved" />
+        <FilterButton label="Unapproved" value="unapproved" />
+      </View>
+
+      {loading && !refreshing ? (
         <ActivityIndicator size="large" color="#F8544B" style={styles.loader} />
       ) : (
         <FlatList
-          data={vendors}
+          data={filteredBranches}
           keyExtractor={item => item.branch_id.toString()}
           renderItem={renderBranch}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No branches pending approval.</Text>
+            <Text style={styles.emptyText}>No branches found.</Text>
           }
           refreshControl={
-                      <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        colors={['#F8544B']}
-                        tintColor="#F8544B"
-                      />
-                    }
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#F8544B']}
+              tintColor="#F8544B"
+            />
+          }
         />
       )}
     </View>
@@ -96,6 +135,7 @@ const BranchApprove = () => {
 };
 
 export default BranchApprove;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -147,8 +187,6 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   emptyText: {
     textAlign: 'center',
@@ -156,4 +194,26 @@ const styles = StyleSheet.create({
     color: '#888',
     marginTop: 20,
   },
-}); 
+  filterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
+  },
+  filterButtonActive: {
+    backgroundColor: '#F8544B',
+  },
+  filterText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  filterTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+});

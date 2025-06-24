@@ -10,18 +10,56 @@ const ratePerKm = 20;
 const RiderViewOrderOnMap = ({route}) => {
   const {order} = route.params;
   const [riderLocation, setRiderLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [deliveryInfo, setDeliveryInfo] = useState({km: '0', charges: '0'});
+  const [riderTrail, setRiderTrail] = useState([]);
+  const [latestLocation, setLatestLocation] = useState(null);
 
   useEffect(() => {
+    fetchOrdersLiveStatus();
     requestLocationPermission();
   }, []);
 
   useEffect(() => {
     if (riderLocation) {
       calculateDistanceAndCharges();
-      console.log('rider location', riderLocation);
     }
   }, [riderLocation]);
+  const fetchOrdersLiveStatus = async () => {
+    try {
+      const locationRes = await fetch(
+        `${url}/suborders/${order.suborder_id}/live-tracking`,
+      );
+      const locationData = await locationRes.json();
+
+      const routeRes = await fetch(
+        `${url}/suborders/${order.suborder_id}/route-info`,
+      );
+      const routeData = await routeRes.json();
+
+      if (
+        locationData?.data &&
+        Array.isArray(locationData.data) &&
+        locationData.data.length > 0
+      ) {
+        const trail = locationData.data.map(loc => ({
+          latitude: parseFloat(loc.latitude),
+          longitude: parseFloat(loc.longitude),
+        }));
+
+        console.log('rider trail', trail);
+        setRiderTrail(trail);
+        setLatestLocation(trail[trail.length - 1] || null);
+      } else {
+        console.warn('No location data available for this suborder.');
+      }
+    } catch (error) {
+      console.error('Error fetching tracking info:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const requestLocationPermission = async () => {
     try {
@@ -50,10 +88,18 @@ const RiderViewOrderOnMap = ({route}) => {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        setRiderLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
+        if (riderTrail && riderTrail.length > 0) {
+          const lastPoint = riderTrail[riderTrail.length - 1];
+          setRiderLocation({
+            latitude: lastPoint.latitude,
+            longitude: lastPoint.longitude,
+          });
+        } else {
+          setRiderLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        }
       },
       error => {
         console.log('Location error:', error.message);
@@ -100,12 +146,12 @@ const RiderViewOrderOnMap = ({route}) => {
       longitude: longitude,
     };
     setRiderLocation(coords);
+    setRiderTrail(pre => [...pre, coords]);
     console.log('curren Postion', latitude, longitude);
     if (
       order.status == 'assigned' ||
       order.status == 'picked_up' ||
-      order.status == 'handover_confirmed' ||
-      order.status == 'in_transit'
+      order.status == 'handover_confirmed'
     ) {
       try {
         const response = await fetch(
@@ -136,7 +182,13 @@ const RiderViewOrderOnMap = ({route}) => {
       </View>
     );
   }
-
+  if (loading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#FF5C5C" />
+      </View>
+    );
+  }
   return (
     <View style={{flex: 1}}>
       <MapView
@@ -152,6 +204,7 @@ const RiderViewOrderOnMap = ({route}) => {
           coordinate={riderLocation}
           pinColor="blue"
           title="Your Location"
+          image={require('../../Assets/Images/ridericon.png')}
         />
 
         <Marker
@@ -167,6 +220,13 @@ const RiderViewOrderOnMap = ({route}) => {
           description="Delivery Location"
           pinColor="green"
         />
+        {riderTrail.length > 1 && (
+          <Polyline
+            coordinates={riderTrail}
+            strokeColor="#0000FF" // You can change this to match your theme
+            strokeWidth={4}
+          />
+        )}
       </MapView>
 
       <View

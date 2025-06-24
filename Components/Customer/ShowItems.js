@@ -9,11 +9,12 @@ import {
   StyleSheet,
   Pressable,
   Modal,
+  Alert,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {ActivityIndicator, Button, IconButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useCart } from '../../Context/LmdContext';
+import {useCart} from '../../Context/LmdContext';
 
 const ShowItems = ({navigation, route}) => {
   const branchdata = route.params.item;
@@ -30,42 +31,46 @@ const ShowItems = ({navigation, route}) => {
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    getAllBranchItems();
-    getAllshopSubcatagories();
-  }, []);
+  fetchInitialData();
+}, []);
 
-  const getAllshopSubcatagories = async () => {
-    try {
-      const response = await fetch(
-        `${url}/itemcategories/${branchdata.shopcategory_ID}`,
-      );
-      const data = await response.json();
-      if (data) {
-        setAllcatagories([{id: 'all', name: 'All'}, ...data.categories]);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const getAllBranchItems = async () => {
-    try {
-      const response = await fetch(
+const fetchInitialData = async () => {
+  try {
+    setLoading(true);
+    setLoadingBrances(true);
+
+    const [categoriesRes, itemsRes] = await Promise.all([
+      fetch(`${url}/itemcategories/${branchdata.shopcategory_ID}`),
+      fetch(
         `${url}/vendor/${branchdata.vendor_id}/shop/${branchdata.shop_id}/branch/${branchdata.branch_id}/menu`,
-      );
-      const data = await response.json();
-      if (data != 'No menu information found for this vendor/shop/branch') {
-        setBranchItem(data);
-        setFilteredItems(data)
-      }
-    } catch (error) {
-      console.error('Error fetching branches:', error);
+      ),
+    ]);
+
+    const categoriesData = await categoriesRes.json();
+    const itemsData = await itemsRes.json();
+
+    // Set categories
+    if (categoriesData?.categories?.length) {
+      setAllcatagories([{id: 'all', name: 'All'}, ...categoriesData.categories]);
     }
-    finally {
-      setLoadingBrances(false);
+
+    // Set items
+    if (itemsData && typeof itemsData !== 'string') {
+      if (itemsData.error) {
+    Alert.alert('Sorry', 'Vendor server is not reachable');
+    return; // Stop further execution
+  }
+      setBranchItem(itemsData);
+      setFilteredItems(itemsData);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching initial data:', error);
+  } finally {
+    setLoading(false);
+    setLoadingBrances(false);
+  }
+};
+
   const filterItems = id => {
     if (id == 'all') {
       setFilteredItems(branchItem);
@@ -128,18 +133,24 @@ const ShowItems = ({navigation, route}) => {
           </Text>
 
           <View style={styles.ratingContainer}>
-            <Icon name="star" size={16} color="#F4A900" />
-            <Text style={styles.ratingText}>
-              {' '}
-              {branchdata.reviews_count} reviews
-            </Text>
+            
+
+            
+           
+             
+
+                <Text style={styles.ratingText}>
+                 
+                Reviews-({branchdata.reviews_count}) 
+                </Text>
+              
           </View>
         </View>
         {/*  <TouchableOpacity style={styles.cartButton} onPress={showorderdetails}>
           <Icon name="shopping-cart" size={24} color="white" />
         </TouchableOpacity> */}
       </View>
-      {loading && loadingBrances? (
+      {loading && loadingBrances ? (
         <ActivityIndicator
           size="large"
           color="black"
@@ -207,7 +218,6 @@ const ShowItems = ({navigation, route}) => {
             }
             numColumns={2}
             columnWrapperStyle={{justifyContent: 'space-between'}}
-
             keyExtractor={item => item.item_id}
             ListEmptyComponent={() => (
               <View style={{alignItems: 'center', marginTop: 20}}>
@@ -227,7 +237,9 @@ const ShowItems = ({navigation, route}) => {
                   <Text style={styles.productType}>{item.variation_name}</Text>
                   <View style={styles.productBottomRow}>
                     <Text style={styles.productPrice}>Rs. {item.price}</Text>
-                    <TouchableOpacity style={styles.addButton} onPress={()=>handlePress(item)}>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      onPress={() => handlePress(item)}>
                       <Icon name="plus" size={16} color="white" />
                     </TouchableOpacity>
                   </View>
@@ -263,15 +275,15 @@ const ShowItems = ({navigation, route}) => {
                   style={styles.modalImage}
                 />
                 <View>
-                  <View style={[styles.ratingContainer, {marginTop: 20}]}>
+                  {/*   <View style={[styles.ratingContainer, {marginTop: 20}]}>
                     <Icon name="star" size={16} color="gold" />
                     <Icon name="star" size={16} color="gold" />
                     <Text style={[styles.rating, {color: 'gray'}]}>
                       {' '}
                       4.9 (20)
-                      {/* {item.rating} ({item.reviews_count} Ratings) */}
+                      {/* {item.rating} ({item.reviews_count} Ratings) 
                     </Text>
-                  </View>
+                  </View> */}
                 </View>
                 <Text style={styles.modalTitle}>{selectedItem.item_name}</Text>
                 <Text style={{fontSize: 17, marginTop: 5, color: 'gray'}}>
@@ -352,13 +364,12 @@ const styles = StyleSheet.create({
   selectedCategory: {backgroundColor: '#F8544B', borderColor: '#F8544B'},
   categoryText: {fontSize: 16, color: '#000'},
   productCard: {
-   
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
     margin: 5,
     elevation: 3,
-    flex:1
+    flex: 1,
   },
   productImage: {width: '100%', height: 100, borderRadius: 10},
   productName: {fontSize: 16, fontWeight: 'bold', marginTop: 5, color: 'black'},

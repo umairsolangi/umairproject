@@ -15,7 +15,7 @@ import {Pressable, ScrollView} from 'react-native-gesture-handler';
 import {useCart} from '../../Context/LmdContext';
 
 const CutomerShowBranches = ({navigation, route}) => {
-  const cutomerdata = route.params.cutomerdata;
+  const cutomerdata = route.params.customerFullData;
   const {orderDetails, cartCount} = useCart();
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,22 +27,10 @@ const CutomerShowBranches = ({navigation, route}) => {
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    console.log(cutomerdata);
+    console.log('test user data', cutomerdata);
     fetchBranches();
     getAllshopcatagories();
   }, []);
-
-  const getCustomerFullDetails = async () => {
-    try {
-      const response = await fetch(`${url}/customers/${cutomerdata.id}`);
-      const data = await response.json();
-      if (data) {
-        setCustomerFullData(data);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
 
   const getAllshopcatagories = async () => {
     try {
@@ -63,8 +51,17 @@ const CutomerShowBranches = ({navigation, route}) => {
       );
       const data = await response.json();
       if (data) {
-        setBranches(data);
-        setFilteredItems(data); // ✅ Ensure filteredItems is set initially
+        if (cutomerdata.name === 'testcustomer1') {
+          const apibranches = data.filter(
+            item => item.vendor_type === 'API Vendor',
+          );
+
+          setBranches(apibranches);
+          setFilteredItems(apibranches);
+        } else {
+          setBranches(data);
+          setFilteredItems(data);
+        }
       }
     } catch (error) {
       console.error('Error fetching branches:', error);
@@ -98,9 +95,9 @@ const CutomerShowBranches = ({navigation, route}) => {
       style={styles.card}
       onPress={() => navigation.navigate('Branch Menu', {item})}>
       <Image source={{uri: item.branch_picture}} style={styles.image} />
-      <TouchableOpacity style={styles.heartIcon}>
+      {/* <TouchableOpacity style={styles.heartIcon}>
         <Icon name="heart-outline" size={24} color="black" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View style={styles.info}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View>
@@ -112,11 +109,11 @@ const CutomerShowBranches = ({navigation, route}) => {
           </View>
           <View>
             <View style={styles.ratingContainer}>
-              <Icon name="star" size={16} color="gold" />
-              <Icon name="star" size={16} color="gold" />
+           
               <Text style={[styles.rating, {color: 'gray'}]}>
                 {' '}
-                {item.rating} ({item.reviews_count} Ratings)
+
+                Reviews-({item.reviews_count})
               </Text>
             </View>
           </View>

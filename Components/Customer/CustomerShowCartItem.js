@@ -27,11 +27,13 @@ const CustomerShowCartItem = ({navigation, route}) => {
   const [addresses, setAddresses] = useState([]);
   const [selectedDeliveryType, setSelectedDeliveryType] = useState('Standard');
   const [finalItem, setFinalItem] = useState([]);
-  const [customerFullData,setCustomerFullData]=useState({})
-  
+  const [customerFullData, setCustomerFullData] = useState({});
+  const [outofstokeitem, setoutofstokeitem] = useState([]);
+  const [outOfStockModalVisible, setOutOfStockModalVisible] = useState(false);
+
   useEffect(() => {
-    console.log(CartData)
-    getCustomerFullDetails()
+    console.log(CartData);
+    getCustomerFullDetails();
     getCustomerAddress();
     const initialSelection = {};
     const initialQuantities = {};
@@ -53,12 +55,7 @@ const CustomerShowCartItem = ({navigation, route}) => {
         const data = res.addresses;
         const formattedAddres = data.map(address => ({
           key: address.id.toString(),
-          value:
-            address.street +
-            ',' +
-            address.city +
-            ',' +
-            address.country,
+          value: address.street + ',' + address.city + ',' + address.country,
         }));
         setAddresses(formattedAddres);
       }
@@ -67,19 +64,17 @@ const CustomerShowCartItem = ({navigation, route}) => {
     }
   };
 
-  const getCustomerFullDetails=async()=>{
+  const getCustomerFullDetails = async () => {
     try {
-      const response = await fetch(
-        `${url}/customers/${cutomerdata.id}`,
-      );
+      const response = await fetch(`${url}/customers/${cutomerdata.id}`);
       const data = await response.json();
       if (data) {
-        setCustomerFullData(data) 
+        setCustomerFullData(data);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  }
+  };
   const toggleSelection = itemId => {
     setSelectedItems(prev => ({
       ...prev,
@@ -95,21 +90,81 @@ const CustomerShowCartItem = ({navigation, route}) => {
     }));
   };
 
-  const handleCheckout = val => {
+  const handleCheckout = async val => {
     const finalizedItems = CartData.filter(
       item => selectedItems[item.item_detail_id],
     ).map(item => ({
       ...item,
       quantity: quantities[item.item_detail_id],
     }));
+
     if (val === 'checkout') {
-      if (finalizedItems.length > 0) {
-        setFinalItem([...finalizedItems]);
-        setModalVisible(true);
-      } else {
+      if (finalizedItems.length === 0) {
         alert('Please finalize at least one item before checkout.');
+        return;
+      }
+
+      // Prepare payload for stock check
+      const stockCheckPayload = {
+        items: finalizedItems.map(item => ({
+          vendor_ID: item.vendor_id,
+          shop_ID: item.shop_id,
+          branch_ID: item.branch_id,
+          item_detail_ID: item.item_detail_id,
+        })),
+      };
+
+      try {
+        const stockResponse = await fetch(
+          `${url}/customer/get-stock-for-items`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(stockCheckPayload),
+          },
+        );
+
+        const stockResult = await stockResponse.json();
+
+        if (stockResponse.ok && stockResult.status) {
+          const stockData = stockResult.data;
+
+          // Check if any item is out of stock
+          const outOfStockItems = finalizedItems.filter(item => {
+            const stockInfo = stockData.find(
+              s => s.item_detail_ID === item.item_detail_id,
+            );
+            if(cutomerdata.name==='testcustomer1'){
+              return !stockInfo || item.quantity > stockInfo.test_stock_qty;
+            }
+            else{
+            return !stockInfo || item.quantity > stockInfo.stock_qty;
+
+            }
+          });
+
+          if (outOfStockItems.length > 0) {
+            setoutofstokeitem(outOfStockItems);
+            setOutOfStockModalVisible(true); // open the modal
+
+            const names = outOfStockItems.map(i => i.item_name).join(', ');
+          } else {
+            // All items are in stock — proceed
+            setFinalItem([...finalizedItems]);
+            setModalVisible(true);
+          }
+        } else {
+          alert('Failed to fetch stock info. Please try again.');
+        }
+      } catch (error) {
+        console.error('Stock check error:', error);
+        alert('Error checking stock. Please try again later.');
       }
     }
+
+    // Save Cart logic (unchanged)
     else if (val === 'savecart') {
       if (finalizedItems.length > 0) {
         const formattedOrder = finalizedItems.map(item => ({
@@ -117,40 +172,41 @@ const CustomerShowCartItem = ({navigation, route}) => {
           vendor_id: item.vendor_id,
           shop_id: item.shop_id,
           branch_id: item.branch_id,
-          itemdetails_id: item.item_detail_id, // Match API field name
+          itemdetails_id: item.item_detail_id,
           price: parseFloat(item.price),
           quantity: parseInt(item.quantity, 10),
         }));
-    
-        console.log("Saving cart items:", formattedOrder);
-    
-        formattedOrder.forEach(async (item) => {
+
+        console.log('Saving cart items:', formattedOrder);
+
+        formattedOrder.forEach(async item => {
           try {
             const response = await fetch(`${url}/cart/add-item`, {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
-              body: JSON.stringify(item), // Send one item at a time
+              body: JSON.stringify(item),
             });
-    
+
             const result = await response.json();
-    
+
             if (response.ok) {
-              alert("Cart Saved Successfully!");
+              alert('Cart Saved Successfully!');
             } else {
-              alert(`Error: ${result.message || "Something went wrong!"}`);
+              alert(`Error: ${result.message || 'Something went wrong!'}`);
             }
           } catch (error) {
-            console.error("Cart API Error:", error);
-            alert("Failed to save cart item. Please try again later.");
+            console.error('Cart API Error:', error);
+            alert('Failed to save cart item. Please try again later.');
           }
         });
       } else {
-        alert("No items selected to save!");
+        alert('No items selected to save!');
       }
     }
   };
+
   const handleConfirmCheckout = val => {
     /* if (!selectedDeliveryAddress || !selectedBillingAddress) {
       alert('Please select both addresses!');
@@ -165,8 +221,8 @@ const CustomerShowCartItem = ({navigation, route}) => {
 
     setModalVisible(false);
     setFinalItem([]);
-    console.log('ordersummary: ',orderInfo)
-    navigation.navigate('Order Summary', {orderInfo,cutomerdata});
+    console.log('ordersummary: ', orderInfo);
+    navigation.navigate('Order Summary', {orderInfo, cutomerdata});
   };
   return (
     <View style={styles.container}>
@@ -189,7 +245,7 @@ const CustomerShowCartItem = ({navigation, route}) => {
                   style={styles.quantityButton}>
                   <Text style={styles.quantityText}>-</Text>
                 </TouchableOpacity>
-                <Text style={[styles.quantityValue,{color: "gray"}]}>
+                <Text style={[styles.quantityValue, {color: 'gray'}]}>
                   {quantities[item.item_detail_id]}
                 </Text>
                 <TouchableOpacity
@@ -254,13 +310,13 @@ const CustomerShowCartItem = ({navigation, route}) => {
               placeholder="Select Delivery Address"
               boxStyles={styles.dropdown}
               dropdownStyles={styles.dropdownList}
-              dropdownTextStyles={{ color: "black" }}
-              inputStyles={{ color: 'black' }}     
+              dropdownTextStyles={{color: 'black'}}
+              inputStyles={{color: 'black'}}
               defaultOption={addresses[0]} // Pre-select first option
             />
 
             {/* Billing Address Dropdown */}
-         {/*    <Text style={styles.label}>Billing Address</Text>
+            {/*    <Text style={styles.label}>Billing Address</Text>
             <SelectList
               setSelected={val => {
                 const selectedAddress = addresses.find(
@@ -277,7 +333,12 @@ const CustomerShowCartItem = ({navigation, route}) => {
             <Button
               mode="outlined"
               textColor="grey"
-              labelStyle={{fontSize: 17, fontWeight: '700',alignSelf:'flex-end',marginTop:10}}
+              labelStyle={{
+                fontSize: 17,
+                fontWeight: '700',
+                alignSelf: 'flex-end',
+                marginTop: 10,
+              }}
               onPress={() => navigation.navigate('Add Address', {cutomerdata})}>
               Add new Address
             </Button>
@@ -293,12 +354,12 @@ const CustomerShowCartItem = ({navigation, route}) => {
                   color="#F8544B"
                   labelStyle={styles.radioLabel}
                 />
-                <RadioButton.Item
+                {/* <RadioButton.Item
                   label="Express Delivery"
                   value="Express"
                   color="#F8544B"
                   labelStyle={styles.radioLabel}
-                />
+                /> */}
               </View>
             </RadioButton.Group>
             {/* Confirm Button */}
@@ -314,6 +375,30 @@ const CustomerShowCartItem = ({navigation, route}) => {
             <TouchableOpacity onPress={() => setModalVisible(false)}>
               <Text style={styles.closeText}>Cancel</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={outOfStockModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setOutOfStockModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Out of Stock Items</Text>
+
+            {outofstokeitem.map((item, index) => (
+              <Text key={index} style={styles.modalItem}>
+                {item.item_name} (Requested: {item.quantity})
+              </Text>
+            ))}
+
+            <Button
+              mode="contained"
+              onPress={() => setOutOfStockModalVisible(false)}
+              style={{marginTop: 15, backgroundColor: '#F8544B'}}>
+              Close
+            </Button>
           </View>
         </View>
       </Modal>
@@ -388,14 +473,14 @@ const styles = StyleSheet.create({
   },
   checkoutButton: {
     flex: 1,
-    backgroundColor: '#007BFF', 
+    backgroundColor: '#007BFF',
     paddingVertical: 8,
     borderRadius: 8,
     marginRight: 10,
   },
   saveCartButton: {
     flex: 1,
-    backgroundColor: '#F8544B', 
+    backgroundColor: '#F8544B',
     paddingVertical: 8,
     borderRadius: 8,
   },
@@ -428,7 +513,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginVertical: 5,
     fontWeight: 'bold',
-    color: "black"
+    color: 'black',
   },
   dropdown: {
     width: '100%',
@@ -436,7 +521,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ccc',
-    
   },
   confirmButton: {
     backgroundColor: '#F8544B',
@@ -459,6 +543,30 @@ const styles = StyleSheet.create({
   radioLabel: {
     fontSize: 16,
     color: '#333',
+  },
+ modalOverlay: {
+    
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '85%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: 'black',
+  },
+  modalItem: {
+    fontSize: 14,
+    marginVertical: 2,
+    color: 'black',
   },
 });
 
