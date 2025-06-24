@@ -1,65 +1,118 @@
-# 🚚 Last Mile Delivery System
+<h1 align="center">🚚 Last Mile Delivery System</h1>
 
-An all-in-one delivery platform connecting customers with vendors (food, groceries, pharmacies, etc.) and offering courier services for parcel sending/receiving. This system enhances convenience for users while increasing earning opportunities for delivery riders.
+<p align="center">
+  <b>React Native Multi-Role Delivery App</b><br/>
+  Connecting Customers, Vendors & Riders for Seamless Ordering, Delivery & Parcel Services
+</p>
 
-## 📱 Features
-
-### For Customers:
-- Place orders from multiple vendors in one app
-- Track order progress in real-time
-- Schedule orders and deliveries
-- Create daily food menus
-- Send and receive parcels via the courier feature
-
-### For Vendors:
-- **In-App Vendors**: 
-  - Create shops and multiple branches
-  - Manage orders and suborders
-  - Approval-based onboarding by Admin
-- **API Vendors**: 
-  - Seamless integration with the platform via APIs
-  - Automatic order processing
-
-### For Riders:
-- Accept delivery or courier jobs
-- Track earnings and delivery history
-- Navigate using integrated maps
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Mobile App-blue?style=flat-square&logo=react" />
+  <img src="https://img.shields.io/badge/Backend-Laravel-ff2d20?style=flat-square&logo=laravel" />
+  <img src="https://img.shields.io/badge/API-RESTful-orange?style=flat-square" />
+  <img src="https://img.shields.io/badge/Status-Active-success?style=flat-square" />
+</p>
 
 ---
 
-## 🧱 Tech Stack
+## 🧭 Overview
 
-### Frontend (Mobile App)
-- React Native (React Native CLI)
-- React Native Maps
-- React Native Paper
-- Context API for global state management
-- Step Indicator for tracking order stages
+**Last Mile Delivery System** is a comprehensive delivery platform designed for multiple roles:
+- 📦 Customers: food, grocery & parcel delivery
+- 🛒 Vendors: manage orders via app or API
+- 🛵 Riders: track and fulfill deliveries with maps
 
-### Backend
-- Laravel (RESTful API)
-- MySQL database
+Built with **React Native CLI** on the frontend and **Laravel** backend, it supports real-time order tracking, vendor onboarding, courier features, and branch/shop management.
 
 ---
 
-## 🛠️ Setup Instructions
+## 📱 Key Features
 
-### 1. Clone the Repository
+### 👤 For Customers
+- 🛍 Place orders from multiple vendors
+- 📦 Track order status in real-time
+- 📅 Schedule orders & deliveries
+- 🍽 Create daily food menus
+- 📮 Send/receive parcels via courier system
+
+### 🧑‍🍳 For Vendors
+- 🏪 Create shops & multi-branch setups
+- 🔁 Manage new orders and sub-orders
+- ✔️ Admin-based approval system
+- ⚙️ **API Vendors**: Integrate with platform using REST APIs
+
+### 🧍 For Riders
+- 🚚 Accept delivery/courier jobs
+- 💰 View earnings and delivery logs
+- 🗺️ Use map for directions and distance tracking
+
+---
+
+## 🛠 Tech Stack
+
+| Layer       | Technologies Used                                         |
+|-------------|------------------------------------------------------------|
+| **Mobile**  | React Native CLI, React Native Paper, Maps, Step Indicator |
+| **State**   | Context API (global state management)                      |
+| **Backend** | Laravel (PHP), RESTful APIs                                |
+| **Database**| MySQL                                                      |
+| **Others**  | Haversine formula, Location APIs, Role-based routing       |
+
+---
+
+## 🧑‍💻 Folder Structure (Suggested)
+
+Last_Mile_Delivery/
+├── mobile-app/
+│ ├── components/
+│ ├── screens/
+│ ├── navigation/
+│ ├── context/
+│ └── App.js
+├── backend/
+│ ├── app/
+│ ├── routes/
+│ ├── database/
+│ └── .env
+└── README.md
+
+---
+
+## 📦 Setup Instructions
+
+### 🚀 Clone the Repository
+
 ```bash
 git clone https://github.com/ImRehmankhan/Last_Mile_Delivery.git
-cd last-mile-delivery
-
-Install Mobile Dependencies
+cd Last_Mile_Delivery
+```
+```
+📱 Mobile App Setup (React Native CLI)
 cd mobile-app
 npm install
 npx react-native link
+npx react-native run-android
+```
+📌 Project Goals
+✅ Deliver a scalable & modular multi-role delivery app
 
-cd backend
-composer install
-cp .env.example .env
-php artisan key: generate
-php artisan migrate
-php artisan serve
+✅ Integrate real-time geolocation and delivery tracking
+
+✅ Enable in-app + API vendor systems
+
+✅ Support parcel, food, grocery, and pharmacy use cases
+
+🙋‍♂️ Author
+Muhammad Rehman
+Frontend Developer (React.js & React Native)
+📧 rehmanattock30@gmail.com
+🔗 Portfolio
+🔗 LinkedIn
+
+⭐ Support & Feedback
+If you found this project useful, consider giving it a ⭐
+Feel free to open issues or fork the repo for your own custom delivery platform!
+
+<p align="center"> Thanks for visiting! 🚀<br/> Built with 💙 using React Native & Laravel </p> 
 
 
 
