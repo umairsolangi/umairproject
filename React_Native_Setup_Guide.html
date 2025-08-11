@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Last Mile Delivery - React Native Setup Guide</title>
+    <style>
+        body {
+            font-family: Calibri, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 20px 0;
+        }
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 12px;
+            margin: 20px 0;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 12px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        @media print {
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Last Mile Delivery React Native App - Complete Setup Guide</h1>
+
+<div class="info">
+    <strong>Document Version:</strong> 1.0<br>
+    <strong>Date:</strong> August 10, 2025<br>
+    <strong>Platform:</strong> Windows 10/11<br>
+    <strong>React Native Version:</strong> 0.75.4
+</div>
+
+<div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+        <li>1. <a href="#overview">Overview</a></li>
+        <li>2. <a href="#prerequisites">Prerequisites & System Requirements</a></li>
+        <li>3. <a href="#installation">Complete Installation Guide</a></li>
+        <li>4. <a href="#project-setup">Project Setup & Configuration</a></li>
+        <li>5. <a href="#building">Building the Application</a></li>
+        <li>6. <a href="#running">Running the Application</a></li>
+        <li>7. <a href="#troubleshooting">Troubleshooting Guide</a></li>
+        <li>8. <a href="#reference">Quick Reference</a></li>
+    </ul>
+</div>
+
+<div class="page-break"></div>
+
+<h2 id="overview">1. Overview</h2>
+
+<p>This document provides a comprehensive step-by-step guide to set up and run the Last Mile Delivery React Native application on a Windows machine. This guide assumes no prior knowledge of React Native development.</p>
+
+<h3>Project Structure</h3>
+<table>
+    <tr>
+        <th>Component</th>
+        <th>Description</th>
+        <th>Location</th>
+    </tr>
+    <tr>
+        <td>Frontend (React Native)</td>
+        <td>Mobile application</td>
+        <td>Root directory</td>
+    </tr>
+    <tr>
+        <td>Backend (Laravel)</td>
+        <td>API server</td>
+        <td>/backend folder</td>
+    </tr>
+    <tr>
+        <td>Android Build</td>
+        <td>Android specific files</td>
+        <td>/android folder</td>
+    </tr>
+</table>
+
+<h2 id="prerequisites">2. Prerequisites & System Requirements</h2>
+
+<h3>Minimum System Requirements</h3>
+<table>
+    <tr>
+        <th>Component</th>
+        <th>Minimum</th>
+        <th>Recommended</th>
+    </tr>
+    <tr>
+        <td>Operating System</td>
+        <td>Windows 10 (64-bit)</td>
+        <td>Windows 11 (64-bit)</td>
+    </tr>
+    <tr>
+        <td>RAM</td>
+        <td>8 GB</td>
+        <td>16 GB or more</td>
+    </tr>
+    <tr>
+        <td>Storage</td>
+        <td>20 GB free space</td>
+        <td>50 GB free space</td>
+    </tr>
+    <tr>
+        <td>Processor</td>
+        <td>Intel i5 or equivalent</td>
+        <td>Intel i7 or equivalent</td>
+    </tr>
+    <tr>
+        <td>Internet</td>
+        <td>Required for downloads</td>
+        <td>High-speed connection</td>
+    </tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="installation">3. Complete Installation Guide</h2>
+
+<h3>Step 1: Enable PowerShell Script Execution</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Allow PowerShell to run scripts on your system.</p>
+    <p><strong>Open PowerShell as Administrator</strong> (Right-click Start → Windows PowerShell (Admin))</p>
+    <pre>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</pre>
+    <p>When prompted, type <code>A</code> (Yes to All) and press Enter.</p>
+</div>
+
+<h3>Step 2: Install Chocolatey Package Manager (Optional but Recommended)</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Simplifies installation of development tools.</p>
+    <pre>Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))</pre>
+    <p>Verify installation:</p>
+    <pre>choco --version</pre>
+</div>
+
+<h3>Step 3: Install Node.js and npm</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> JavaScript runtime required for React Native.</p>
+    <p><strong>Method 1: Using Chocolatey</strong></p>
+    <pre>choco install nodejs -y</pre>
+    <p><strong>Method 2: Manual Download</strong></p>
+    <p>Download from <a href="https://nodejs.org/">https://nodejs.org/</a> (Choose LTS version)</p>
+    <p>Verify installation:</p>
+    <pre>node --version
+npm --version</pre>
+    <div class="success">Expected: Node.js v18.x.x or higher, npm v9.x.x or higher</div>
+</div>
+
+<h3>Step 4: Install Yarn Package Manager</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Alternative package manager used by this project.</p>
+    <pre>npm install -g yarn</pre>
+    <p>Verify installation:</p>
+    <pre>yarn --version</pre>
+</div>
+
+<div class="page-break"></div>
+
+<h3>Step 5: Install Java Development Kit (JDK) 17</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Required for Android app compilation.</p>
+    <div class="warning"><strong>Important:</strong> Must be JDK 17, not JDK 11 or JDK 18+</div>
+    <p><strong>Using Windows Package Manager (winget):</strong></p>
+    <pre>winget install EclipseAdoptium.Temurin.17.JDK</pre>
+    <p>Installation will show progress and complete automatically (~200MB download)</p>
+    <p>Verify installation:</p>
+    <pre>java -version</pre>
+    <div class="success">Expected output: openjdk version "17.0.x"</div>
+</div>
+
+<h3>Step 6: Install Android Studio</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Provides Android SDK and development tools.</p>
+    <pre>winget install Google.AndroidStudio</pre>
+    <div class="warning"><strong>Note:</strong> This is a large download (~1.4GB) and may take 10-30 minutes.</div>
+    <p>The installer will request administrator privileges - approve when prompted.</p>
+</div>
+
+<h3>Step 7: Set Up Android SDK</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Install Android development tools and SDK packages.</p>
+    
+    <p><strong>7.1 Create SDK Directory:</strong></p>
+    <pre>New-Item -ItemType Directory -Path "$env:USERPROFILE\AppData\Local\Android\Sdk" -Force</pre>
+    
+    <p><strong>7.2 Download Command Line Tools:</strong></p>
+    <pre>$sdkPath = "$env:USERPROFILE\AppData\Local\Android\Sdk"
+$sdkUrl = "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip"
+Invoke-WebRequest -Uri $sdkUrl -OutFile "$sdkPath\commandlinetools.zip"</pre>
+    
+    <p><strong>7.3 Extract and Organize Tools:</strong></p>
+    <pre>Expand-Archive -Path "$sdkPath\commandlinetools.zip" -DestinationPath "$sdkPath\temp" -Force
+New-Item -ItemType Directory -Path "$sdkPath\cmdline-tools\latest" -Force
+Get-ChildItem -Path "$sdkPath\temp\cmdline-tools" | Move-Item -Destination "$sdkPath\cmdline-tools\latest" -Force
+Remove-Item "$sdkPath\temp" -Recurse -Force
+Remove-Item "$sdkPath\commandlinetools.zip"</pre>
+    
+    <p><strong>7.4 Set Environment Variables:</strong></p>
+    <pre>$env:ANDROID_HOME = "$env:USERPROFILE\AppData\Local\Android\Sdk"
+$env:PATH = "$env:ANDROID_HOME\cmdline-tools\latest\bin;$env:ANDROID_HOME\platform-tools;$env:PATH"</pre>
+    
+    <p><strong>7.5 Install SDK Packages:</strong></p>
+    <pre>echo "y" | sdkmanager "platforms;android-34" "platforms;android-35" "build-tools;34.0.0" "build-tools;35.0.0" "platform-tools" "ndk;26.1.10909125"</pre>
+    <div class="info">This downloads approximately 2GB of SDK components and may take 15-30 minutes.</div>
+</div>
+
+<div class="page-break"></div>
+
+<h3>Step 8: Install Android Debug Bridge (ADB)</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Communicate with Android devices.</p>
+    <pre>winget install Google.PlatformTools</pre>
+    <p>Verify installation:</p>
+    <pre>adb --version</pre>
+</div>
+
+<h2 id="project-setup">4. Project Setup & Configuration</h2>
+
+<h3>Step 1: Navigate to Project Directory</h3>
+<div class="step">
+    <pre>cd C:\Projects\UmairProject\Last_Mile_Delivery</pre>
+</div>
+
+<h3>Step 2: Install Project Dependencies</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Download all required npm packages.</p>
+    <pre>yarn install</pre>
+    <div class="info">This downloads 500MB-1GB of packages and may take 5-10 minutes.</div>
+</div>
+
+<h3>Step 3: Fix Dependency Compatibility Issues</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Downgrade incompatible packages.</p>
+    <pre>yarn add react-native-reanimated@3.6.0</pre>
+</div>
+
+<h3>Step 4: Create Configuration Files</h3>
+<div class="step">
+    <p><strong>4.1 Create react-native.config.js in project root:</strong></p>
+    <pre>@"
+module.exports = {
+  dependencies: {
+    'react-native-reanimated': {
+      platforms: {
+        android: null,
+      },
+    },
+    'react-native-gesture-handler': {
+      platforms: {
+        android: null,
+      },
+    },
+  },
+};
+"@ | Out-File -FilePath "react-native.config.js" -Encoding UTF8</pre>
+    
+    <p><strong>4.2 Create local.properties in android folder:</strong></p>
+    <pre>cd android
+@"
+sdk.dir=$env:USERPROFILE\\AppData\\Local\\Android\\Sdk
+"@ | Out-File -FilePath "local.properties" -Encoding UTF8</pre>
+</div>
+
+<div class="page-break"></div>
+
+<h3>Step 5: Update Android Configuration Files</h3>
+<div class="step">
+    <p><strong>5.1 Update android/gradle.properties</strong></p>
+    <p>Add these lines at the end of the file:</p>
+    <pre># Optimization settings
+android.suppressUnsupportedCompileSdk=35
+org.gradle.parallel=false
+org.gradle.configureondemand=false
+org.gradle.daemon=false
+org.gradle.caching=false
+org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+org.gradle.workers.max=1
+android.enableJetifier=true
+org.gradle.java.home=C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot</pre>
+    
+    <p><strong>5.2 Update android/build.gradle</strong></p>
+    <p>Modify the buildscript section:</p>
+    <pre>buildscript {
+    ext {
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 23
+        compileSdkVersion = 35
+        targetSdkVersion = 34
+        ndkVersion = "26.1.10909125"
+        kotlinVersion = "1.9.24"
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.6.0")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}</pre>
+    
+    <p><strong>5.3 Update android/gradle/wrapper/gradle-wrapper.properties</strong></p>
+    <p>Change the distribution URL:</p>
+    <pre>distributionUrl=https\://services.gradle.org/distributions/gradle-8.9-all.zip</pre>
+</div>
+
+<div class="page-break"></div>
+
+<h3>Step 6: Create Build Scripts</h3>
+<div class="step">
+    <p><strong>Create build-android.bat in android folder:</strong></p>
+    <pre>@echo off
+echo Killing all Java processes...
+taskkill /F /IM java.exe 2>nul
+taskkill /F /IM javaw.exe 2>nul
+
+echo Setting environment...
+set JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot
+set ANDROID_HOME=%USERPROFILE%\AppData\Local\Android\Sdk
+set PATH=%JAVA_HOME%\bin;%ANDROID_HOME%\platform-tools;%PATH%
+set GRADLE_OPTS=-Xmx2048m -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1
+
+echo Cleaning cache...
+rd /s /q .gradle 2>nul
+rd /s /q app\build 2>nul
+
+echo Building APK (this will take time, please be patient)...
+call gradlew.bat assembleDebug --no-daemon --no-parallel --no-build-cache --max-workers=1 -Dorg.gradle.jvmargs="-Xmx2048m" --warning-mode=none
+
+if %errorlevel% == 0 (
+    echo.
+    echo BUILD SUCCESSFUL!
+    echo APK Location: app\build\outputs\apk\debug\app-debug.apk
+) else (
+    echo.
+    echo BUILD FAILED!
+)
+
+pause</pre>
+</div>
+
+<h2 id="building">5. Building the Application</h2>
+
+<h3>Method 1: PowerShell Script (Recommended)</h3>
+<div class="step">
+    <p><strong>Purpose:</strong> Uses optimized settings to prevent build hanging and memory issues.</p>
+    <p><strong>Use the working PowerShell script (most reliable):</strong></p>
+    <pre>.\build-android-working.ps1</pre>
+    
+    <div class="success">This script automatically:
+        • Sets environment variables
+        • Kills stuck processes
+        • Builds with optimal settings
+        • Auto-installs if device detected
+    </div>
+</div>
+
+<h3>Method 2: Optimized Script (For Build Issues)</h3>
+<div class="step">
+    <p><strong>If build-android-working.ps1 fails or hangs:</strong></p>
+    <pre>.\build-android-optimized.ps1</pre>
+    <p>This uses even more conservative settings to prevent hanging.</p>
+</div>
+
+<h3>Method 3: Manual Build</h3>
+<div class="step">
+    <p><strong>Navigate to android folder and run:</strong></p>
+    <pre>cd android
+.\gradlew --stop
+.\gradlew clean --no-daemon
+.\gradlew assembleDebug --no-daemon --max-workers=1 --no-parallel --console=plain</pre>
+</div>
+    
+    <div class="warning">
+        <strong>Expected Build Times:</strong><br>
+        • First build: 30-60 minutes<br>
+        • Subsequent builds: 5-15 minutes<br>
+        • After clean: 15-30 minutes
+    </div>
+    
+    <div class="success">
+        <strong>Build Output:</strong><br>
+        APK Location: <code>android\app\build\outputs\apk\debug\app-debug.apk</code><br>
+        Expected Size: ~150-160 MB
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2 id="running">6. Running the Application</h2>
+
+<div class="info">
+    <strong>Multiple Methods Available:</strong> Choose the method that works best for your setup.
+</div>
+
+<h3>Method 1: React Native CLI (Recommended)</h3>
+<div class="step">
+    <p><strong>This is the fastest method once everything is set up:</strong></p>
+    <pre>cd C:\Projects\UmairProject\Last_Mile_Delivery
+npx react-native run-android</pre>
+    
+    <div class="success">
+        This command automatically:
+        • Starts Metro bundler
+        • Builds the APK if needed
+        • Installs on connected device
+        • Launches the app
+    </div>
+</div>
+
+<h3>Method 2: Using Yarn Scripts</h3>
+<div class="step">
+    <p><strong>Alternative React Native CLI method:</strong></p>
+    <pre>cd C:\Projects\UmairProject\Last_Mile_Delivery
+yarn android</pre>
+    <p>This runs the same as <code>npx react-native run-android</code></p>
+</div>
+
+<h3>Method 3: Manual APK Install + Metro</h3>
+<div class="step">
+    <p><strong>Use this if the above methods fail:</strong></p>
+    
+    <p><strong>Step 1: Build APK using PowerShell script:</strong></p>
+    <pre>.\build-android-working.ps1</pre>
+    
+    <p><strong>Step 2: Start Metro in separate terminal:</strong></p>
+    <pre>cd C:\Projects\UmairProject\Last_Mile_Delivery
+yarn start</pre>
+    
+    <p><strong>Step 3: Launch app on device (find "ReactProject" icon)</strong></p>
+</div>
+
+<h3>Prerequisites: Prepare Your Android Device</h3>
+<div class="step">
+    <p><strong>1.1 Enable Developer Options:</strong></p>
+    <ul>
+        <li>Go to Settings → About Phone</li>
+        <li>Tap "Build Number" 7 times</li>
+        <li>Enter your PIN/Password if prompted</li>
+    </ul>
+    
+    <p><strong>1.2 Enable USB Debugging:</strong></p>
+    <ul>
+        <li>Go to Settings → Developer Options</li>
+        <li>Enable "USB Debugging"</li>
+        <li>Enable "Install via USB" (if available)</li>
+    </ul>
+    
+    <p><strong>1.3 Connect Device:</strong></p>
+    <ul>
+        <li>Connect phone via USB cable</li>
+        <li>When prompted on phone, tap "Allow" for USB debugging</li>
+        <li>Check "Always allow from this computer"</li>
+    </ul>
+    
+    <p><strong>1.4 Verify Connection:</strong></p>
+    <pre>adb devices</pre>
+    <div class="success">Should show your device ID with "device" status</div>
+</div>
+
+<h3>Step 2: Install the APK</h3>
+<div class="step">
+    <pre>cd android
+adb install app\build\outputs\apk\debug\app-debug.apk</pre>
+    <div class="success">Expected: "Success" message after installation</div>
+</div>
+
+<h3>Step 3: Start Metro Bundler</h3>
+<div class="step">
+    <p><strong>In a new PowerShell window:</strong></p>
+    <pre>cd C:\Projects\UmairProject\Last_Mile_Delivery
+yarn start</pre>
+    <div class="info">Keep this window open while running the app</div>
+</div>
+
+<h3>Step 4: Launch the Application</h3>
+<div class="step">
+    <p>Find and tap the "ReactProject" app icon on your phone</p>
+    <p>The app should connect to Metro bundler automatically</p>
+</div>
+
+<div class="page-break"></div>
+
+<h2 id="troubleshooting">7. Troubleshooting Guide</h2>
+
+<table>
+    <tr>
+        <th>Issue</th>
+        <th>Solution</th>
+    </tr>
+    <tr>
+        <td>Build stuck at "Configure project :react-native-reanimated"</td>
+        <td>
+            1. Press Ctrl+C to stop<br>
+            2. Run: <code>taskkill /F /IM java.exe</code><br>
+            3. Use the build-android.bat script
+        </td>
+    </tr>
+    <tr>
+        <td>SDK location not found</td>
+        <td>
+            Create local.properties:<br>
+            <code>echo "sdk.dir=%USERPROFILE%\AppData\Local\Android\Sdk" > android\local.properties</code>
+        </td>
+    </tr>
+    <tr>
+        <td>JDK version issues</td>
+        <td>
+            Set JAVA_HOME:<br>
+            <code>$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot"</code>
+        </td>
+    </tr>
+    <tr>
+        <td>Out of memory error</td>
+        <td>
+            Increase memory:<br>
+            <code>$env:GRADLE_OPTS = "-Xmx4096m -XX:MaxMetaspaceSize=1g"</code>
+        </td>
+    </tr>
+    <tr>
+        <td>Device not detected</td>
+        <td>
+            1. Check USB cable<br>
+            2. Reinstall device drivers<br>
+            3. Try different USB port<br>
+            4. Restart ADB: <code>adb kill-server && adb start-server</code>
+        </td>
+    </tr>
+    <tr>
+        <td>Metro bundler connection failed</td>
+        <td>
+            1. Check firewall settings<br>
+            2. Run: <code>adb reverse tcp:8081 tcp:8081</code><br>
+            3. Shake device and select "Reload"
+        </td>
+    </tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="reference">8. Quick Reference</h2>
+
+<h3>🚀 Quick Start Commands (TL;DR)</h3>
+<div class="step">
+    <p><strong>For experienced users - run these commands in order:</strong></p>
+    <pre># 1. Navigate to project
+cd C:\Projects\UmairProject\Last_Mile_Delivery
+
+# 2. Install dependencies (first time only)
+yarn install
+
+# 3. Connect your Android device via USB, enable USB debugging
+adb devices
+
+# 4. Run the app (builds + installs + starts)
+npx react-native run-android</pre>
+
+    <div class="success">
+        <strong>If successful:</strong> The app will be built, installed on your device, and Metro bundler will start automatically.
+    </div>
+    
+    <div class="warning">
+        <strong>If it fails:</strong> Use the PowerShell script method: <code>.\build-android-working.ps1</code>
+    </div>
+</div>
+
+<h3>Essential Commands</h3>
+<table>
+    <tr>
+        <th>Command</th>
+        <th>Purpose</th>
+    </tr>
+    <tr>
+        <td><code>java -version</code></td>
+        <td>Check Java version (should be 17.x.x)</td>
+    </tr>
+    <tr>
+        <td><code>node --version</code></td>
+        <td>Check Node.js version (should be 18.x.x+)</td>
+    </tr>
+    <tr>
+        <td><code>yarn --version</code></td>
+        <td>Check Yarn version</td>
+    </tr>
+    <tr>
+        <td><code>adb devices</code></td>
+        <td>List connected devices</td>
+    </tr>
+    <tr>
+        <td><code>yarn install</code></td>
+        <td>Install project dependencies</td>
+    </tr>
+    <tr>
+        <td><code>cd android && .\gradlew clean</code></td>
+        <td>Clean build files</td>
+    </tr>
+    <tr>
+        <td><code>cd android && .\gradlew assembleDebug</code></td>
+        <td>Build debug APK</td>
+    </tr>
+    <tr>
+        <td><code>adb install [apk-path]</code></td>
+        <td>Install APK on device</td>
+    </tr>
+    <tr>
+        <td><code>yarn start</code></td>
+        <td>Start Metro bundler</td>
+    </tr>
+</table>
+
+<h3>Project File Locations</h3>
+<table>
+    <tr>
+        <th>File/Folder</th>
+        <th>Location</th>
+    </tr>
+    <tr>
+        <td>Project Root</td>
+        <td>C:\Projects\UmairProject\Last_Mile_Delivery</td>
+    </tr>
+    <tr>
+        <td>Android Project</td>
+        <td>C:\Projects\UmairProject\Last_Mile_Delivery\android</td>
+    </tr>
+    <tr>
+        <td>Built APK</td>
+        <td>android\app\build\outputs\apk\debug\app-debug.apk</td>
+    </tr>
+    <tr>
+        <td>Android SDK</td>
+        <td>%USERPROFILE%\AppData\Local\Android\Sdk</td>
+    </tr>
+    <tr>
+        <td>Gradle Cache</td>
+        <td>%USERPROFILE%\.gradle</td>
+    </tr>
+</table>
+
+<div class="success">
+    <h3>Success Checklist</h3>
+    <ul style="list-style-type: none;">
+        <li>☐ PowerShell execution policy set</li>
+        <li>☐ Node.js 18+ installed</li>
+        <li>☐ Yarn installed</li>
+        <li>☐ JDK 17 installed</li>
+        <li>☐ Android Studio installed</li>
+        <li>☐ Android SDK components installed</li>
+        <li>☐ Project dependencies installed</li>
+        <li>☐ Configuration files created</li>
+        <li>☐ First build completed successfully</li>
+        <li>☐ APK generated and installed</li>
+    </ul>
+</div>
+
+<div class="info">
+    <h3>Additional Notes</h3>
+    <ul>
+        <li><strong>Backend Setup:</strong> Remember to start your Laravel backend separately using <code>php artisan serve</code></li>
+        <li><strong>API Configuration:</strong> Update API URLs in your React Native code to point to your backend</li>
+        <li><strong>Disabled Libraries:</strong> react-native-reanimated and react-native-gesture-handler are disabled due to compatibility issues</li>
+        <li><strong>Development Mode:</strong> The debug APK includes development tools. For production, use <code>gradlew assembleRelease</code></li>
+    </ul>
+</div>
+
+<div style="text-align: center; margin-top: 50px; padding: 20px; background-color: #f8f9fa;">
+    <p><strong>End of Document</strong></p>
+    <p>For support and updates, please refer to the project repository.</p>
+    <p>© 2025 Last Mile Delivery Project</p>
+</div>
+
+    <div class="scroll-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="position: fixed; bottom: 30px; right: 30px; background: #3498db; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease; z-index: 1000; opacity: 0; visibility: hidden;">
+        ↑
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.toc a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.style.opacity = '1';
+                scrollTop.style.visibility = 'visible';
+            } else {
+                scrollTop.style.opacity = '0';
+                scrollTop.style.visibility = 'hidden';
+            }
+        });
+
+        // Add copy functionality to code blocks
+        document.querySelectorAll('pre').forEach(block => {
+            block.style.cursor = 'pointer';
+            block.title = 'Click to copy';
+            
+            block.addEventListener('click', function() {
+                const text = this.innerText;
+                navigator.clipboard.writeText(text).then(function() {
+                    // Visual feedback
+                    const originalBackground = block.style.backgroundColor;
+                    block.style.backgroundColor = '#27ae60';
+                    setTimeout(() => {
+                        block.style.backgroundColor = originalBackground || '#2c3e50';
+                    }, 200);
+                }).catch(function() {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    // Visual feedback
+                    const originalBackground = block.style.backgroundColor;
+                    block.style.backgroundColor = '#27ae60';
+                    setTimeout(() => {
+                        block.style.backgroundColor = originalBackground || '#2c3e50';
+                    }, 200);
+                });
+            });
+        });
+
+        // Enhance hover effects for scroll to top button
+        const scrollTopBtn = document.querySelector('.scroll-top');
+        scrollTopBtn.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#2980b9';
+            this.style.transform = 'translateY(-3px)';
+        });
+        
+        scrollTopBtn.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '#3498db';
+            this.style.transform = 'translateY(0)';
+        });
+
+        // Print optimization
+        window.addEventListener('beforeprint', function() {
+            document.querySelector('.scroll-top').style.display = 'none';
+        });
+        
+        window.addEventListener('afterprint', function() {
+            document.querySelector('.scroll-top').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ActivityIndicator, IconButton} from 'react-native-paper';
 import MessageModal from '../CommonComponents/MessageModal';
-import { RefreshControl } from 'react-native-gesture-handler';
+import { RefreshControl } from 'react-native';
 
 
 

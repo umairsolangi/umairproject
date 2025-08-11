@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useState, useMemo} from 'react';
-import {RefreshControl} from 'react-native-gesture-handler';
+import {RefreshControl} from 'react-native';
 import {Button} from 'react-native-paper';
 
 const OrgReceiveVendorReq = ({navigation, route}) => {

@@ -1,8 +1,8 @@
-import 'react-native-gesture-handler';
+// import 'react-native-gesture-handler'; // Disabled due to compatibility issues
 import React from 'react';
+import {View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import Login from './Components/SignupLogin/Login';
 import VendorSignup from './Components/VendorInApp/VendorSignup';
@@ -64,7 +64,7 @@ const App = () => {
   /* screenOptions={{headerShown: false}} */
   return (
     <>
-      <GestureHandlerRootView style={{flex: 1}}>
+      <View style={{flex: 1}}>
         <CartProvider>
           <NavigationContainer>
             <Stack.Navigator>
@@ -141,7 +141,7 @@ const App = () => {
             </Stack.Navigator>
           </NavigationContainer>
         </CartProvider>
-      </GestureHandlerRootView>
+      </View>
     </>
   );
 };

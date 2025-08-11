@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { RefreshControl } from 'react-native-gesture-handler';
+import { RefreshControl } from 'react-native';
 
 const BranchApprove = () => {
   const [branches, setBranches] = useState([]);

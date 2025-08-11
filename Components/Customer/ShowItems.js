@@ -11,7 +11,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native';
 import {ActivityIndicator, Button, IconButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {useCart} from '../../Context/LmdContext';

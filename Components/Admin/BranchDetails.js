@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, Image, Modal, StyleSheet} from 'react-native';
 import {Button, Checkbox} from 'react-native-paper';
 import {useRoute, useNavigation} from '@react-navigation/native';
-import {ScrollView} from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native';
 
 const BranchDetails = () => {
   const route = useRoute();
